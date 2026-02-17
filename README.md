@@ -2,14 +2,14 @@
 
 EduTrack is a starter project built with Laravel 11, designed to help students manage their learning activities and notes. It features a clean, MVC-structured codebase with a minimal and professional UI using Tailwind CSS.
 
-## 🚀 Features
+## Features
 
 ### Core Modules
 - **Authentication**: Secure login and registration.
 - Composer
 - MySQL
 
-## 🚀 Langkah Instalasi
+## Langkah Instalasi
 
 Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal Anda:
 
@@ -58,14 +58,14 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal Anda:
     ```
     Akses aplikasi di `http://localhost:8000`.
 
-## 🔑 Akses Login Default
+## Akses Login Default
 
 Setelah menjalankan seeding, Anda dapat masuk menggunakan akun berikut:
 
 -   **Email**: `siswa@edutrack.com`
 -   **Password**: `password`
 
-## 🏗️ Struktur & Arsitektur
+## Struktur & Arsitektur
 
 - **Models**: `App\Models\Note` (Business logic and relationships)
 - **Controllers**:
@@ -75,10 +75,6 @@ Setelah menjalankan seeding, Anda dapat masuk menggunakan akun berikut:
   - `resources/views/layouts/app.blade.php` (Master layout)
   - `resources/views/notes/` (Note management views)
   - `resources/views/dashboard.blade.php` (Main dashboard)
-
-## AI Integration
-
-An AI Widget placeholder is located in `resources/views/dashboard.blade.php` (`<div id="ai-widget">`). This area is reserved for future AI features such as study recommendations or automatic note summarization.
 
 ## License
 
