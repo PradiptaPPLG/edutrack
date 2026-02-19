@@ -46,7 +46,7 @@
             <nav class="p-4 space-y-6 overflow-y-auto">
                 <!-- Dashboard -->
                 <div>
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                         <span class="material-symbols-outlined">dashboard</span>
                         Dashboard
                     </a>
@@ -56,11 +56,11 @@
                 <div>
                     <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Akademik</h3>
                     <div class="space-y-1">
-                        <a href="{{ route('subjects.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('subjects.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('subjects.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                             <span class="material-symbols-outlined">book_2</span>
                             Mata Pelajaran
                         </a>
-                        <a href="{{ route('schedules.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('schedules.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('schedules.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                             <span class="material-symbols-outlined">calendar_month</span>
                             Jadwal
                         </a>
@@ -71,11 +71,11 @@
                 <div>
                     <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Pusat Belajar</h3>
                     <div class="space-y-1">
-                        <a href="{{ route('notes.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('notes.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('notes.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                             <span class="material-symbols-outlined">edit_note</span>
                             Catatan Saya
                         </a>
-                        <a href="{{ route('assignments.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('assignments.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('assignments.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                             <span class="material-symbols-outlined">assignment</span>
                             Tugas
                         </a>
@@ -86,11 +86,11 @@
                 <div>
                     <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Performa</h3>
                     <div class="space-y-1">
-                        <a href="{{ route('grades.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('grades.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('grades.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                             <span class="material-symbols-outlined">grade</span>
                             Nilai
                         </a>
-                        <a href="{{ route('attendances.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('attendances.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('attendances.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
                             <span class="material-symbols-outlined">verified_user</span>
                             Kehadiran
                         </a>
@@ -185,6 +185,17 @@
                     });
                 }
             }
+        });
+
+        // Incoming Feature Menu Toast
+        document.querySelectorAll('a[href="#"]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                Toast.fire({
+                    icon: 'info',
+                    title: 'Fitur belum tersedia'
+                });
+            });
         });
     </script>
 </body>

@@ -10,7 +10,7 @@
             <p class="text-sky-100 text-lg max-w-xl">
                 Hanya mereka yang terus melangkah maju yang akan mencapai garis finish. Teruslah belajar dan berkembang!
             </p>
-            <a href="{{ route('notes.create') }}" class="inline-flex items-center gap-2 mt-6 bg-white text-sky-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-sky-50 transition-colors">
+            <a href="#" class="inline-flex items-center gap-2 mt-6 bg-white text-sky-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-sky-50 transition-colors">
                 <span class="material-symbols-outlined">add_circle</span>
                 Buat Catatan Baru
             </a>
