@@ -65,16 +65,16 @@ Setelah menjalankan seeding, Anda dapat masuk menggunakan akun berikut:
 -   **Email**: `siswa@edutrack.com`
 -   **Password**: `password`
 
-## Struktur & Arsitektur
+## Struktur Data
 
-- **Models**: `App\Models\Note` (Business logic and relationships)
-- **Controllers**:
-  - `NoteController` (CRUD operations)
-  - `AuthController` (Login/Register logic)
-- **Views**:
-  - `resources/views/layouts/app.blade.php` (Master layout)
-  - `resources/views/notes/` (Note management views)
-  - `resources/views/dashboard.blade.php` (Main dashboard)
+- **Models**:
+  - `App\Models\User`
+  - `App\Models\Note`
+  - `App\Models\Subject`
+  - `App\Models\Assignment`
+  - `App\Models\Schedule`
+  - `App\Models\Grade`
+  - `App\Models\Attendance`
 
 ## License
 
