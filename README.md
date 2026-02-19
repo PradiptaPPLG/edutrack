@@ -48,7 +48,7 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek di komputer lokal Anda:
 5.  **Migrasi dan Seeding Database**
     Jalankan perintah ini untuk membuat tabel dan mengisi data awal (termasuk akun Siswa):
     ```bash
-    php artisan migrate:fresh --seed
+    php artisan migrate --seed
     ```
 
 6.  **Jalankan Server Lokal**
