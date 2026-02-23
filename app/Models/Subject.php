@@ -15,6 +15,7 @@ class Subject extends Model
         'user_id',
         'name',
         'color_code',
+        'is_active',
     ];
 
     public function user(): BelongsTo

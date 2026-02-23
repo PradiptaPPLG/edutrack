@@ -3,14 +3,14 @@
 @section('header', 'Dashboard')
 
 @section('content')
-    <!-- Hero Section -->
+    <!-- Hero Section dengan quote -->
     <div class="bg-gradient-to-r from-sky-500 to-purple-600 rounded-2xl p-8 text-white mb-8 shadow-lg relative overflow-hidden">
         <div class="relative z-10">
             <h2 class="text-3xl font-bold mb-2">Selamat datang kembali, {{ Auth::user()->name }}!</h2>
             <p class="text-sky-100 text-lg max-w-xl">
-                Hanya mereka yang terus melangkah maju yang akan mencapai garis finish. Teruslah belajar dan berkembang!
+                {{ Auth::user()->quote ?? 'Hanya mereka yang terus melangkah maju yang akan mencapai garis finish. Teruslah belajar dan berkembang!' }}
             </p>
-            <a href="#" class="inline-flex items-center gap-2 mt-6 bg-white text-sky-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-sky-50 transition-colors">
+            <a href="{{ route('notes.create') }}" class="inline-flex items-center gap-2 mt-6 bg-white text-sky-600 px-5 py-2.5 rounded-lg font-semibold hover:bg-sky-50 transition-colors">
                 <span class="material-symbols-outlined">add_circle</span>
                 Buat Catatan Baru
             </a>
@@ -19,7 +19,7 @@
         <div class="absolute right-0 top-0 h-64 w-64 bg-white opacity-10 rounded-full -mr-16 -mt-16 pointer-events-none"></div>
     </div>
 
-    <!-- Summary Cards -->
+    <!-- Summary Cards (3 kolom) -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Avg Grade -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -67,7 +67,7 @@
         </div>
     </div>
 
-    <!-- AI Widget Area -->
+    <!-- AI Widget Area (placeholder untuk integrasi AI) -->
     <div class="mb-8">
         <h3 class="text-lg font-semibold text-gray-800 mb-4">Asisten Belajar AI</h3>
         <div id="ai-widget" class="mt-8 p-10 bg-white rounded-3xl shadow-sm border-2 border-dashed border-gray-200 h-64 flex items-center justify-center text-gray-400">

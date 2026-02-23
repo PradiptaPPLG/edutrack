@@ -16,6 +16,7 @@ class Assignment extends Model
         'title',
         'due_date',
         'status',
+        'subject_id',
     ];
 
     protected function casts(): array
@@ -30,7 +31,7 @@ class Assignment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function subject(): BelongsTo
+    public function subject()
     {
         return $this->belongsTo(Subject::class);
     }

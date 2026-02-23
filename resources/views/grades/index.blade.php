@@ -1,0 +1,320 @@
+@extends('layouts.app')
+@section('header','Nilai')
+
+@section('content')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{-- Header dengan tombol tambah --}}
+<div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-bold">Daftar Nilai</h2>
+    <button onclick="openAddModal()" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
+        <span class="material-symbols-outlined">add</span> Tambah
+    </button>
+</div>
+
+{{-- ===== BAGIAN CHART VISUALISASI ===== --}}
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+    <!-- LINE CHART: Progress nilai dari waktu ke waktu -->
+    <div class="bg-white p-4 rounded-xl shadow">
+        <h3 class="font-semibold mb-2">📈 Progress Nilai</h3>
+        <canvas id="lineChart"></canvas>
+    </div>
+
+    <!-- BAR CHART: Rata-rata per mata pelajaran -->
+    <div class="bg-white p-4 rounded-xl shadow">
+        <h3 class="font-semibold mb-2">📊 Rata-rata per Mapel</h3>
+        <canvas id="barChart"></canvas>
+    </div>
+
+</div>
+
+{{-- DUAL COMPARISON: Perbandingan dua mata pelajaran --}}
+<div class="bg-white p-4 rounded-xl shadow mb-10">
+    <h3 class="font-semibold text-base mb-3">⚔️ Perbandingan Nilai Mapel</h3>
+
+    <div class="flex gap-3 mb-4">
+        <select id="subA" class="border px-2 py-1 rounded">
+            @foreach($subjects as $s)
+            <option value="{{ $s->name }}">{{ $s->name }}</option>
+            @endforeach
+        </select>
+
+        <select id="subB" class="border px-2 py-1 rounded">
+            @foreach($subjects as $s)
+            <option value="{{ $s->name }}">{{ $s->name }}</option>
+            @endforeach
+        </select>
+
+        <button onclick="compareSubjects()" class="bg-primary text-white px-3 py-1 rounded">Compare</button>
+    </div>
+
+    <canvas id="compareChart" class="w-full h-40"></canvas>
+</div>
+
+{{-- ===== GRID CARD NILAI ===== --}}
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+@foreach($grades as $g)
+
+@php
+    // Ambil KKM dari settings user, default 75
+    $kkm = Auth::user()->kkm ?? 75;
+    // Tentukan warna berdasarkan perbandingan dengan KKM
+    if ($g->score >= $kkm) {
+        $color = '#22c55e'; // Hijau (di atas KKM)
+    } elseif ($g->score >= $kkm - 15) {
+        $color = '#f59e0b'; // Kuning (di bawah KKM tapi tidak terlalu jelek)
+    } else {
+        $color = '#ef4444'; // Merah (jauh di bawah KKM)
+    }
+@endphp
+
+<div class="bg-white rounded-xl shadow border p-4 relative border-l-8" style="border-left-color: {{ $color }}; border-left-width: 8px;">
+    <div class="flex justify-between items-start">
+        <div>
+            <h3 class="font-semibold text-lg">{{ $g->activity_name }}</h3>
+            <p class="text-sm text-gray-500">{{ $g->subject->name }}</p>
+            {{-- Indikator KKM --}}
+            @if($g->score < $kkm)
+                <span class="text-xs text-red-500 mt-1 block">Di bawah KKM ({{ $kkm }})</span>
+            @else
+                <span class="text-xs text-green-500 mt-1 block">Mencapai KKM ({{ $kkm }})</span>
+            @endif
+        </div>
+
+        {{-- Nilai dengan warna sesuai --}}
+        <div class="text-xl font-bold" style="color: {{ $color }}">
+            {{ $g->score }}
+        </div>
+    </div>
+
+    {{-- Tombol aksi --}}
+    <div class="mt-4 flex justify-end gap-3 text-sm">
+        <button onclick="openEditModal('{{ $g->id }}','{{ $g->activity_name }}','{{ $g->subject_id }}','{{ $g->score }}')"
+            class="text-blue-600 flex items-center gap-1">
+            <span class="material-symbols-outlined text-sm">edit</span> Edit
+        </button>
+
+        <form action="{{ route('grades.destroy',$g) }}" method="POST" class="inline">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="text-red-600 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">delete</span> Hapus
+            </button>
+        </form>
+    </div>
+</div>
+@endforeach
+</div>
+
+{{-- ===== STATISTIK DENGAN KKM ===== --}}
+@php
+    $totalData = $grades->count();
+    $rataRata = $grades->avg('score');
+    $nilaiTertinggi = $grades->max('score');
+    $nilaiTerendah = $grades->min('score');
+    
+    // Statistik berdasarkan KKM
+    $kkm = Auth::user()->kkm ?? 75;
+    $diAtasKKM = $grades->filter(function($g) use ($kkm) {
+        return $g->score >= $kkm;
+    })->count();
+    
+    $diBawahKKM = $grades->filter(function($g) use ($kkm) {
+        return $g->score < $kkm;
+    })->count();
+    
+    $persenTuntas = $totalData > 0 ? round(($diAtasKKM / $totalData) * 100, 1) : 0;
+@endphp
+
+{{-- Grid statistik --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 mb-6">
+    <!-- Total Nilai -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
+        <p class="text-sm text-gray-500">Total Data Nilai</p>
+        <p class="text-2xl font-bold">{{ $totalData }}</p>
+    </div>
+    
+    <!-- Rata-rata -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
+        <p class="text-sm text-gray-500">Rata-rata Nilai</p>
+        <p class="text-2xl font-bold">{{ number_format($rataRata, 2) }}</p>
+    </div>
+    
+    <!-- Nilai Tertinggi -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500">
+        <p class="text-sm text-gray-500">Nilai Tertinggi</p>
+        <p class="text-2xl font-bold">{{ $nilaiTertinggi ?? 0 }}</p>
+    </div>
+    
+    <!-- Nilai Terendah -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
+        <p class="text-sm text-gray-500">Nilai Terendah</p>
+        <p class="text-2xl font-bold">{{ $nilaiTerendah ?? 0 }}</p>
+    </div>
+    
+    <!-- Di Atas KKM -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-emerald-500">
+        <p class="text-sm text-gray-500">Di Atas KKM ({{ $kkm }})</p>
+        <p class="text-2xl font-bold">{{ $diAtasKKM }}</p>
+        <p class="text-xs text-gray-400">{{ $persenTuntas }}% tuntas</p>
+    </div>
+    
+    <!-- Di Bawah KKM -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-orange-500">
+        <p class="text-sm text-gray-500">Di Bawah KKM ({{ $kkm }})</p>
+        <p class="text-2xl font-bold">{{ $diBawahKKM }}</p>
+    </div>
+</div>
+
+{{-- MODAL TAMBAH NILAI --}}
+<div id="addModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50" onclick="closeAddModal(event)">
+    <div class="bg-white rounded-xl p-6 w-96" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-semibold text-lg">Tambah Nilai</h3>
+            <button onclick="closeAddModal()" class="text-gray-400">✕</button>
+        </div>
+
+        <form action="{{ route('grades.store') }}" method="POST">
+            @csrf
+
+            <select name="subject_id" class="w-full border rounded px-3 py-2 mb-3">
+                @foreach($subjects as $s)
+                <option value="{{ $s->id }}">{{ $s->name }}</option>
+                @endforeach
+            </select>
+
+            <input name="activity_name" placeholder="Nama aktivitas (UTS, Quiz, dll)" class="w-full border rounded px-3 py-2 mb-3">
+
+            <input type="number" name="score" min="0" max="100" step="0.01" placeholder="Nilai (0-100)" class="w-full border rounded px-3 py-2 mb-3">
+
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeAddModal()" class="px-4 py-2 border rounded">Batal</button>
+                <button class="bg-primary text-white px-4 py-2 rounded">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODAL EDIT NILAI --}}
+<div id="editModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center z-50" onclick="closeEditModal(event)">
+    <div class="bg-white rounded-xl p-6 w-96" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-semibold text-lg">Edit Nilai</h3>
+            <button onclick="closeEditModal()" class="text-gray-400">✕</button>
+        </div>
+
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT')
+
+            <select id="editSubject" name="subject_id" class="w-full border rounded px-3 py-2 mb-3">
+                @foreach($subjects as $s)
+                <option value="{{ $s->id }}">{{ $s->name }}</option>
+                @endforeach
+            </select>
+
+            <input id="editActivity" name="activity_name" class="w-full border rounded px-3 py-2 mb-3">
+            <input id="editScore" type="number" name="score" min="0" max="100" step="0.01" class="w-full border rounded px-3 py-2 mb-3">
+
+            <div class="flex justify-end gap-2">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 border rounded">Batal</button>
+                <button class="bg-primary text-white px-4 py-2 rounded">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- JAVASCRIPT untuk chart dan modal --}}
+<script>
+const addModal = document.getElementById('addModal');
+const editModal = document.getElementById('editModal');
+const editForm = document.getElementById('editForm');
+const editActivity = document.getElementById('editActivity');
+const editSubject = document.getElementById('editSubject');
+const editScore = document.getElementById('editScore');
+const subA = document.getElementById('subA');
+const subB = document.getElementById('subB');
+const compareChartCanvas = document.getElementById('compareChart');
+
+// Fungsi modal
+function openAddModal(){ addModal.classList.remove('hidden') }
+function closeAddModal(e){ if(!e || e.target.id==='addModal') addModal.classList.add('hidden') }
+
+function openEditModal(id,name,subject,score){
+    editModal.classList.remove('hidden');
+    editForm.action="/grades/"+id;
+    editActivity.value=name;
+    editSubject.value=subject;
+    editScore.value=score;
+}
+function closeEditModal(e){ if(!e || e.target.id==='editModal') editModal.classList.add('hidden') }
+
+// Data dari controller (dikirim via JSON)
+const lineLabels = @json($lineLabels);
+const lineScores = @json($lineScores);
+const barLabels = @json($barLabels);
+const barScores = @json($barScores);
+
+// LINE CHART
+new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+        labels: lineLabels,
+        datasets: [{
+            label: 'Nilai',
+            data: lineScores,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59,130,246,0.15)',
+            tension: 0.4
+        }]
+    }
+});
+
+// BAR CHART
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: barLabels,
+        datasets: [{
+            label: 'Rata-rata Nilai',
+            data: barScores,
+            backgroundColor: '#22c55e'
+        }]
+    }
+});
+
+// DUAL COMPARISON
+let compareChart;
+function compareSubjects(){
+    const A = subA.value;
+    const B = subB.value;
+
+    const avg = {};
+    barLabels.forEach((n,i)=> avg[n]=barScores[i]);
+
+    const scoreA = avg[A] ?? 0;
+    const scoreB = avg[B] ?? 0;
+
+    // Tentukan warna: merah untuk yang kalah
+    let colorA='#22c55e', colorB='#22c55e';
+    if(scoreA>scoreB) colorB='#ef4444';
+    if(scoreB>scoreA) colorA='#ef4444';
+    if(scoreA==scoreB) colorA=colorB='#f59e0b';
+
+    if(compareChart) compareChart.destroy();
+
+    compareChart = new Chart(compareChartCanvas, {
+        type:'bar',
+        data:{
+            labels:[A,B],
+            datasets:[{
+                data:[scoreA,scoreB],
+                backgroundColor:[colorA,colorB]
+            }]
+        }
+    });
+}
+</script>
+
+@endsection

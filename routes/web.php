@@ -4,12 +4,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
-
-
-
-
-
+use App\Http\Controllers\SubjectController;
+use App\Http\Controllers\ColorController;
+use App\Http\Controllers\GradeController;
+use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\NoteController;
+use App\Http\Controllers\AccountController; // Tambahkan ini
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -26,4 +28,38 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('subjects', SubjectController::class);
+    Route::post('/subject-colors', [ColorController::class, 'store'])->name('colors.store');
+    Route::post('/colors/ajax', [ColorController::class, 'ajaxStore']);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('assignments', AssignmentController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('schedules', ScheduleController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('grades', GradeController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('attendances', AttendanceController::class);
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('notes', NoteController::class);
+});
+
+// Routes untuk Account (Profile & Settings)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
+    Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::get('/settings', [AccountController::class, 'settings'])->name('settings');
+    Route::put('/settings', [AccountController::class, 'updateSettings'])->name('settings.update');
 });
