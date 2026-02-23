@@ -11,7 +11,7 @@ use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\NoteController;
-use App\Http\Controllers\AccountController; // Tambahkan ini
+use App\Http\Controllers\AccountController; 
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -63,3 +63,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/settings', [AccountController::class, 'settings'])->name('settings');
     Route::put('/settings', [AccountController::class, 'updateSettings'])->name('settings.update');
 });
+
+Route::get('/auth/google/redirect', [App\Http\Controllers\SocialiteController::class, 'redirectToGoogle'])->name('google.redirect');
+Route::get('/auth/google/callback', [App\Http\Controllers\SocialiteController::class, 'handleGoogleCallback'])->name('google.callback');

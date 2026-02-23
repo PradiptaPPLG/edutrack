@@ -113,7 +113,7 @@
     </aside>
 
     <!-- Header Fixed -->
-    <header class="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-10">
+    <header class="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-50">
         <h1 class="text-lg font-semibold text-gray-800">
             @yield('header', 'Dashboard')
         </h1>
@@ -176,74 +176,92 @@
     @endguest
 
     <!-- Script global -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        // Toast notification
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer)
-                toast.addEventListener('mouseleave', Swal.resumeTimer)
-            }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Toast notification
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    });
+
+    // Session flash messages
+    @if(session('success'))
+        Toast.fire({
+            icon: 'success',
+            title: '{{ session('success') }}'
         });
+    @endif
 
-        // Session flash messages
-        @if(session('success'))
-            Toast.fire({
-                icon: 'success',
-                title: '{{ session('success') }}'
-            });
-        @endif
+    @if(session('error'))
+        Toast.fire({
+            icon: 'error',
+            title: '{{ session('error') }}'
+        });
+    @endif
 
-        @if(session('error'))
-            Toast.fire({
-                icon: 'error',
-                title: '{{ session('error') }}'
-            });
-        @endif
+    @if(session('info'))
+        Toast.fire({
+            icon: 'info',
+            title: '{{ session('info') }}'
+        });
+    @endif
 
-        // Delete confirmation untuk semua form dengan method DELETE
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.delete-btn') || e.target.closest('form[method="POST"] button[type="submit"]')) {
-                const button = e.target.closest('button');
-                const form = button.closest('form');
+    // Delete confirmation - KHUSUS UNTUK FORM DELETE (bukan form biasa)
+    document.addEventListener('click', function(e) {
+        // Cari tombol submit dalam form
+        const button = e.target.closest('button[type="submit"]');
+        if (!button) return;
+        
+        const form = button.closest('form');
+        if (!form) return;
+        
+        // CEK PENTING: Apakah ini form logout? (actionnya ke route logout)
+        if (form.action && form.action.includes('logout')) {
+            return; // Langsung submit, tanpa konfirmasi
+        }
+        
+        // Cek apakah ini form DELETE (ada input _method dengan value DELETE)
+        const methodInput = form.querySelector('input[name="_method"][value="DELETE"]');
+        
+        if (methodInput) {
+            e.preventDefault();
 
-                if (form && form.querySelector('input[name="_method"][value="DELETE"]')) {
-                    e.preventDefault();
-
-                    Swal.fire({
-                        title: 'Apakah Anda yakin?',
-                        text: "Data yang dihapus tidak dapat dikembalikan!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
                 }
-            }
-        });
+            });
+        }
+        // Jika bukan form DELETE, biarkan berjalan normal (termasuk form logout)
+    });
 
-        // Fitur yang belum tersedia
-        document.querySelectorAll('a[href="#"]').forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                Toast.fire({
-                    icon: 'info',
-                    title: 'Fitur belum tersedia'
-                });
+    // Fitur yang belum tersedia
+    document.querySelectorAll('a[href="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            Toast.fire({
+                icon: 'info',
+                title: 'Fitur belum tersedia'
             });
         });
-    </script>
+    });
+</script>
     
     @stack('scripts')
 </body> 
