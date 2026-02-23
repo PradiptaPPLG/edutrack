@@ -28,8 +28,8 @@
         <form action="{{ route('subjects.destroy',$subject) }}" method="POST" class="inline">
             @csrf
             @method('DELETE')
-            <button type="submit" class="text-gray-500 hover:text-red-600 flex items-center gap-1">
-                <span class="material-symbols-outlined text-sm">archive</span> Arsip
+            <button type="submit" class="text-red-600 hover:text-red-800 flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">delete</span> Hapus
             </button>
         </form>
     </div>

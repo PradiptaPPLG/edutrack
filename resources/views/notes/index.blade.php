@@ -11,6 +11,51 @@
     </button>
 </div>
 
+{{-- ===== REKAP CATATAN ===== --}}
+@php
+    $totalNotes = $notes->count();
+    $completedNotes = $notes->where('status', 'Completed')->count();
+    $inProgressNotes = $notes->where('status', 'In Progress')->count();
+    $persenCompleted = $totalNotes > 0 ? round(($completedNotes / $totalNotes) * 100) : 0;
+@endphp
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <!-- Card Total Catatan -->
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-500 font-medium">Total Catatan</p>
+            <h3 class="text-3xl font-bold text-gray-800">{{ $totalNotes }}</h3>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+            <span class="material-symbols-outlined text-2xl">notes</span>
+        </div>
+    </div>
+
+    <!-- Card Catatan Selesai -->
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-500 font-medium">Selesai</p>
+            <h3 class="text-3xl font-bold text-green-600">{{ $completedNotes }}</h3>
+            <p class="text-xs text-gray-400 mt-1">{{ $persenCompleted }}% dari total</p>
+        </div>
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+            <span class="material-symbols-outlined text-2xl">checklist</span>
+        </div>
+    </div>
+
+    <!-- Card Catatan Dalam Proses -->
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-indigo-500 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-500 font-medium">Dalam Proses</p>
+            <h3 class="text-3xl font-bold text-indigo-600">{{ $inProgressNotes }}</h3>
+            <p class="text-xs text-gray-400 mt-1">{{ 100 - $persenCompleted }}% dari total</p>
+        </div>
+        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+            <span class="material-symbols-outlined text-2xl">pending_actions</span>
+        </div>
+    </div>
+</div>
+
 {{-- GRID NOTES --}}
 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
 @foreach($notes as $n)

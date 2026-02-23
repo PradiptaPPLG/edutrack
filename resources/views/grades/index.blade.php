@@ -29,27 +29,64 @@
 
 </div>
 
-{{-- DUAL COMPARISON: Perbandingan dua mata pelajaran --}}
-<div class="bg-white p-4 rounded-xl shadow mb-10">
-    <h3 class="font-semibold text-base mb-3">⚔️ Perbandingan Nilai Mapel</h3>
+{{-- ===== STATISTIK DENGAN KKM ===== --}}
+@php
+    $totalData = $grades->count();
+    $rataRata = $grades->avg('score');
+    $nilaiTertinggi = $grades->max('score');
+    $nilaiTerendah = $grades->min('score');
+    
+    // Statistik berdasarkan KKM
+    $kkm = Auth::user()->kkm ?? 75;
+    $diAtasKKM = $grades->filter(function($g) use ($kkm) {
+        return $g->score >= $kkm;
+    })->count();
+    
+    $diBawahKKM = $grades->filter(function($g) use ($kkm) {
+        return $g->score < $kkm;
+    })->count();
+    
+    $persenTuntas = $totalData > 0 ? round(($diAtasKKM / $totalData) * 100, 1) : 0;
+@endphp
 
-    <div class="flex gap-3 mb-4">
-        <select id="subA" class="border px-2 py-1 rounded">
-            @foreach($subjects as $s)
-            <option value="{{ $s->name }}">{{ $s->name }}</option>
-            @endforeach
-        </select>
-
-        <select id="subB" class="border px-2 py-1 rounded">
-            @foreach($subjects as $s)
-            <option value="{{ $s->name }}">{{ $s->name }}</option>
-            @endforeach
-        </select>
-
-        <button onclick="compareSubjects()" class="bg-primary text-white px-3 py-1 rounded">Compare</button>
+{{-- Grid statistik --}}
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
+    <!-- Total Nilai -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
+        <p class="text-sm text-gray-500">Total Data Nilai</p>
+        <p class="text-2xl font-bold">{{ $totalData }}</p>
     </div>
-
-    <canvas id="compareChart" class="w-full h-40"></canvas>
+    
+    <!-- Rata-rata -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
+        <p class="text-sm text-gray-500">Rata-rata Nilai</p>
+        <p class="text-2xl font-bold">{{ number_format($rataRata, 2) }}</p>
+    </div>
+    
+    <!-- Nilai Tertinggi -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500">
+        <p class="text-sm text-gray-500">Nilai Tertinggi</p>
+        <p class="text-2xl font-bold">{{ $nilaiTertinggi ?? 0 }}</p>
+    </div>
+    
+    <!-- Nilai Terendah -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
+        <p class="text-sm text-gray-500">Nilai Terendah</p>
+        <p class="text-2xl font-bold">{{ $nilaiTerendah ?? 0 }}</p>
+    </div>
+    
+    <!-- Di Atas KKM -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-emerald-500">
+        <p class="text-sm text-gray-500">Di Atas KKM ({{ $kkm }})</p>
+        <p class="text-2xl font-bold">{{ $diAtasKKM }}</p>
+        <p class="text-xs text-gray-400">{{ $persenTuntas }}% tuntas</p>
+    </div>
+    
+    <!-- Di Bawah KKM -->
+    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-orange-500">
+        <p class="text-sm text-gray-500">Di Bawah KKM ({{ $kkm }})</p>
+        <p class="text-2xl font-bold">{{ $diBawahKKM }}</p>
+    </div>
 </div>
 
 {{-- ===== GRID CARD NILAI ===== --}}
@@ -105,66 +142,6 @@
     </div>
 </div>
 @endforeach
-</div>
-
-{{-- ===== STATISTIK DENGAN KKM ===== --}}
-@php
-    $totalData = $grades->count();
-    $rataRata = $grades->avg('score');
-    $nilaiTertinggi = $grades->max('score');
-    $nilaiTerendah = $grades->min('score');
-    
-    // Statistik berdasarkan KKM
-    $kkm = Auth::user()->kkm ?? 75;
-    $diAtasKKM = $grades->filter(function($g) use ($kkm) {
-        return $g->score >= $kkm;
-    })->count();
-    
-    $diBawahKKM = $grades->filter(function($g) use ($kkm) {
-        return $g->score < $kkm;
-    })->count();
-    
-    $persenTuntas = $totalData > 0 ? round(($diAtasKKM / $totalData) * 100, 1) : 0;
-@endphp
-
-{{-- Grid statistik --}}
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 mb-6">
-    <!-- Total Nilai -->
-    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-blue-500">
-        <p class="text-sm text-gray-500">Total Data Nilai</p>
-        <p class="text-2xl font-bold">{{ $totalData }}</p>
-    </div>
-    
-    <!-- Rata-rata -->
-    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-green-500">
-        <p class="text-sm text-gray-500">Rata-rata Nilai</p>
-        <p class="text-2xl font-bold">{{ number_format($rataRata, 2) }}</p>
-    </div>
-    
-    <!-- Nilai Tertinggi -->
-    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-yellow-500">
-        <p class="text-sm text-gray-500">Nilai Tertinggi</p>
-        <p class="text-2xl font-bold">{{ $nilaiTertinggi ?? 0 }}</p>
-    </div>
-    
-    <!-- Nilai Terendah -->
-    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-red-500">
-        <p class="text-sm text-gray-500">Nilai Terendah</p>
-        <p class="text-2xl font-bold">{{ $nilaiTerendah ?? 0 }}</p>
-    </div>
-    
-    <!-- Di Atas KKM -->
-    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-emerald-500">
-        <p class="text-sm text-gray-500">Di Atas KKM ({{ $kkm }})</p>
-        <p class="text-2xl font-bold">{{ $diAtasKKM }}</p>
-        <p class="text-xs text-gray-400">{{ $persenTuntas }}% tuntas</p>
-    </div>
-    
-    <!-- Di Bawah KKM -->
-    <div class="bg-white rounded-xl shadow p-4 border-l-4 border-orange-500">
-        <p class="text-sm text-gray-500">Di Bawah KKM ({{ $kkm }})</p>
-        <p class="text-2xl font-bold">{{ $diBawahKKM }}</p>
-    </div>
 </div>
 
 {{-- MODAL TAMBAH NILAI --}}
@@ -233,9 +210,6 @@ const editForm = document.getElementById('editForm');
 const editActivity = document.getElementById('editActivity');
 const editSubject = document.getElementById('editSubject');
 const editScore = document.getElementById('editScore');
-const subA = document.getElementById('subA');
-const subB = document.getElementById('subB');
-const compareChartCanvas = document.getElementById('compareChart');
 
 // Fungsi modal
 function openAddModal(){ addModal.classList.remove('hidden') }
@@ -283,38 +257,6 @@ new Chart(document.getElementById('barChart'), {
         }]
     }
 });
-
-// DUAL COMPARISON
-let compareChart;
-function compareSubjects(){
-    const A = subA.value;
-    const B = subB.value;
-
-    const avg = {};
-    barLabels.forEach((n,i)=> avg[n]=barScores[i]);
-
-    const scoreA = avg[A] ?? 0;
-    const scoreB = avg[B] ?? 0;
-
-    // Tentukan warna: merah untuk yang kalah
-    let colorA='#22c55e', colorB='#22c55e';
-    if(scoreA>scoreB) colorB='#ef4444';
-    if(scoreB>scoreA) colorA='#ef4444';
-    if(scoreA==scoreB) colorA=colorB='#f59e0b';
-
-    if(compareChart) compareChart.destroy();
-
-    compareChart = new Chart(compareChartCanvas, {
-        type:'bar',
-        data:{
-            labels:[A,B],
-            datasets:[{
-                data:[scoreA,scoreB],
-                backgroundColor:[colorA,colorB]
-            }]
-        }
-    });
-}
 </script>
 
 @endsection

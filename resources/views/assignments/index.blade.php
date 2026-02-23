@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('header','Tugas')
 
 @section('content')
@@ -10,6 +9,51 @@
     <button onclick="openAddModal()" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2">
         <span class="material-symbols-outlined">add</span> Tambah
     </button>
+</div>
+
+{{-- ===== REKAP TUGAS ===== --}}
+@php
+    $totalTugas = $assignments->count();
+    $completedTugas = $assignments->where('status', 'Completed')->count();
+    $pendingTugas = $assignments->where('status', 'Pending')->count();
+    $persenCompleted = $totalTugas > 0 ? round(($completedTugas / $totalTugas) * 100) : 0;
+@endphp
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <!-- Card Total Tugas -->
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-blue-500 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-500 font-medium">Total Tugas</p>
+            <h3 class="text-3xl font-bold text-gray-800">{{ $totalTugas }}</h3>
+        </div>
+        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+            <span class="material-symbols-outlined text-2xl">assignment</span>
+        </div>
+    </div>
+
+    <!-- Card Tugas Completed -->
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-green-500 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-500 font-medium">Selesai</p>
+            <h3 class="text-3xl font-bold text-green-600">{{ $completedTugas }}</h3>
+            <p class="text-xs text-gray-400 mt-1">{{ $persenCompleted }}% dari total</p>
+        </div>
+        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600">
+            <span class="material-symbols-outlined text-2xl">check_circle</span>
+        </div>
+    </div>
+
+    <!-- Card Tugas Pending -->
+    <div class="bg-white rounded-xl shadow p-5 border-l-4 border-orange-500 flex items-center justify-between">
+        <div>
+            <p class="text-sm text-gray-500 font-medium">Belum Selesai</p>
+            <h3 class="text-3xl font-bold text-orange-600">{{ $pendingTugas }}</h3>
+            <p class="text-xs text-gray-400 mt-1">{{ 100 - $persenCompleted }}% dari total</p>
+        </div>
+        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
+            <span class="material-symbols-outlined text-2xl">pending</span>
+        </div>
+    </div>
 </div>
 
 {{-- GRID CARD TUGAS --}}
