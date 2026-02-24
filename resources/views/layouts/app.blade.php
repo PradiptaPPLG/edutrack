@@ -46,71 +46,82 @@
     @auth
     
     <!-- Sidebar Fixed -->
-    <aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col z-20">
-        <!-- Logo -->
-        <div class="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
-            <span class="text-xl font-bold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined">school</span>
-                Edutrack
-            </span>
+<aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col z-20">
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
+        <span class="text-xl font-bold text-primary flex items-center gap-2">
+            <span class="material-symbols-outlined">school</span>
+            Edutrack
+        </span>
+    </div>
+
+    <!-- Navigasi sidebar -->
+    <nav class="flex-1 overflow-y-auto p-4 space-y-6">
+        <!-- Dashboard -->
+        <div>
+            <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                <span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </a>
         </div>
 
-        <!-- Navigasi sidebar -->
-        <nav class="flex-1 overflow-y-auto p-4 space-y-6">
-            <!-- Dashboard -->
-            <div>
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('dashboard') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    Dashboard
+        <!-- Akademik -->
+        <div>
+            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Akademik</h3>
+            <div class="space-y-1">
+                <a href="{{ route('subjects.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('subjects.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">book_2</span>
+                    Mata Pelajaran
+                </a>
+                <a href="{{ route('schedules.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('schedules.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">calendar_month</span>
+                    Jadwal
                 </a>
             </div>
+        </div>
 
-            <!-- Akademik -->
-            <div>
-                <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Akademik</h3>
-                <div class="space-y-1">
-                    <a href="{{ route('subjects.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('subjects.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <span class="material-symbols-outlined">book_2</span>
-                        Mata Pelajaran
-                    </a>
-                    <a href="{{ route('schedules.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('schedules.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <span class="material-symbols-outlined">calendar_month</span>
-                        Jadwal
-                    </a>
-                </div>
+        <!-- Study Hub -->
+        <div>
+            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Pusat Belajar</h3>
+            <div class="space-y-1">
+                <a href="{{ route('notes.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('notes.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">edit_note</span>
+                    Catatan Saya
+                </a>
+                <a href="{{ route('assignments.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('assignments.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">assignment</span>
+                    Tugas
+                </a>
             </div>
+        </div>
 
-            <!-- Study Hub -->
-            <div>
-                <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Pusat Belajar</h3>
-                <div class="space-y-1">
-                    <a href="{{ route('notes.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('notes.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <span class="material-symbols-outlined">edit_note</span>
-                        Catatan Saya
-                    </a>
-                    <a href="{{ route('assignments.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('assignments.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <span class="material-symbols-outlined">assignment</span>
-                        Tugas
-                    </a>
-                </div>
+        <!-- Performa -->
+        <div>
+            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Performa</h3>
+            <div class="space-y-1">
+                <a href="{{ route('grades.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('grades.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">grade</span>
+                    Nilai
+                </a>
+                <a href="{{ route('attendances.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('attendances.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">verified_user</span>
+                    Kehadiran
+                </a>
             </div>
-
-            <!-- Performa -->
-            <div>
-                <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Performa</h3>
-                <div class="space-y-1">
-                    <a href="{{ route('grades.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('grades.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <span class="material-symbols-outlined">grade</span>
-                        Nilai
-                    </a>
-                    <a href="{{ route('attendances.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('attendances.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                        <span class="material-symbols-outlined">verified_user</span>
-                        Kehadiran
-                    </a>
-                </div>
+        </div>
+        
+        <!-- Mini Games - HANYA GAME HUB -->
+        <div>
+            <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2"> Mini Games</h3>
+            <div class="space-y-1">
+                <a href="{{ route('games.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('games.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                    <span class="material-symbols-outlined">sports_esports</span>
+                    Game Hub
+                </a>
             </div>
-        </nav>
-    </aside>
+        </div>
+    </nav>
+</aside>
 
     <!-- Header Fixed -->
     <header class="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-50">
@@ -119,45 +130,102 @@
         </h1>
         <div class="flex items-center gap-4">
             <!-- Dropdown User dengan Alpine.js -->
-            <div class="relative" x-data="{ open: false }">
-                <button @click="open = !open" class="flex items-center gap-3 focus:outline-none">
-                    <span class="text-sm text-gray-600">Selamat datang, <strong>{{ Auth::user()->name }}</strong></span>
-                    <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center {{ Auth::user()->profile_photo_path ? '' : 'bg-sky-100' }}">
-                        @php
-                            $photoPath = Auth::user()->profile_photo_path;
-                            $photoUrl = null;
-                            if ($photoPath) {
-                                if (Storage::disk('public')->exists($photoPath)) {
-                                    $photoUrl = asset('storage/' . $photoPath);
-                                }
-                            }
-                        @endphp
-                        @if($photoUrl)
-                            <img src="{{ $photoUrl }}" alt="Profile" class="w-full h-full object-cover">
-                        @else
-                            <span class="text-primary font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
-                        @endif
-                    </div>
-                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-                <!-- Dropdown menu -->
-                <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200" style="display: none;">
-                    <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">account_circle</span> Profile
-                    </a>
-                    <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-sm">settings</span> Settings
-                    </a>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-                            <span class="material-symbols-outlined text-sm">logout</span> Logout
-                        </button>
-                    </form>
-                </div>
+<div class="relative" x-data="{ open: false }">
+    <button @click="open = !open" class="flex items-center gap-3 focus:outline-none">
+        <span class="text-sm text-gray-600">Selamat datang, <strong>{{ Auth::user()->name }}</strong></span>
+        <div class="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center {{ Auth::user()->profile_photo_path ? '' : 'bg-sky-100' }}">
+            @php
+                $photoPath = Auth::user()->profile_photo_path;
+                $photoUrl = null;
+                if ($photoPath) {
+                    if (Storage::disk('public')->exists($photoPath)) {
+                        $photoUrl = asset('storage/' . $photoPath);
+                    }
+                }
+            @endphp
+            @if($photoUrl)
+                <img src="{{ $photoUrl }}" alt="Profile" class="w-full h-full object-cover">
+            @else
+                <span class="text-primary font-bold">{{ substr(Auth::user()->name, 0, 1) }}</span>
+            @endif
+        </div>
+        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+        </svg>
+    </button>
+    
+    <!-- Dropdown menu -->
+<div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200" style="display: none;">
+    
+    <!-- User info dengan gamifikasi -->
+    <div class="px-4 py-3 border-b border-gray-100">
+        <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
+        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+        
+        <!-- Level & XP Badge -->
+        <div class="mt-2 flex items-center gap-2">
+            <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
+                Level {{ Auth::user()->level }}
+            </span>
+            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-medium">
+                {{ number_format(Auth::user()->xp) }} XP
+            </span>
+        </div>
+        
+        <!-- Current Tier Name -->
+        @php
+            $currentTier = \App\Models\LevelTier::getTier(Auth::user()->level);
+        @endphp
+        <p class="text-xs text-gray-600 mt-1 italic truncate">
+            "{{ $currentTier['name'] }}"
+        </p>
+        
+        <!-- Progress bar ke next level -->
+        @php
+            $nextTier = \App\Models\LevelTier::getNextLevelRequirement(Auth::user()->level);
+            $gamification = new \App\Services\GamificationService(Auth::user());
+            $progress = $gamification->getProgressToNextLevel(); // INI SEKARANG INTEGER (ANGKA)
+        @endphp
+        
+        @if($nextTier)
+        <div class="mt-2">
+            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                <span>Progress ke Level {{ Auth::user()->level + 1 }}</span>
+                {{-- PERBAIKAN: $progress LANGSUNG ANGKA, BUKAN ARRAY --}}
+                <span>{{ $progress }}%</span>
             </div>
+            <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-purple-500 to-yellow-500 rounded-full" 
+                     style="width: {{ $progress }}%"></div> {{-- PERBAIKAN DI SINI JUGA --}}
+            </div>
+        </div>
+        @endif
+    </div>
+    
+    <!-- Menu Items (seterusnya tetap sama) -->
+    <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">account_circle</span> Profile
+    </a>
+    
+    <a href="{{ route('achievements') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
+        <span class="material-symbols-outlined text-sm text-yellow-500">emoji_events</span> 
+        <span class="flex-1">Achievements</span>
+        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">{{ Auth::user()->level }}/16</span>
+    </a>
+    
+    <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+        <span class="material-symbols-outlined text-sm">settings</span> Settings
+    </a>
+    
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
+            <span class="material-symbols-outlined text-sm">logout</span> Logout
+        </button>
+    </form>
+    <!-- Di dalam sidebar, setelah menu Performa atau sebelum Logout -->
+
+</div>
         </div>
     </header>
 

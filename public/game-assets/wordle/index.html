@@ -1,0 +1,378 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Wordle Clone</title> 
+    <!-- Tailwind CSS CDN --> 
+    <script src="https://cdn.tailwindcss.com"></script> 
+    <style> 
+        /* Custom styles for the game */ 
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #1a1a1b; /* Dark background for a sleek look */ 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            color: #e0e0e0; /* Light text color */ 
+        } 
+        .game-container { 
+            background-color: #262627; /* Slightly lighter dark background for container */ 
+            border-radius: 1.5rem; 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); 
+            padding: 2.5rem; 
+            width: 100%; 
+            max-width: 500px; 
+            text-align: center; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 1.5rem; 
+            position: relative; 
+        } 
+        .board-row { 
+            display: flex; 
+            justify-content: center; 
+            gap: 8px; /* Space between cells */ 
+            margin-bottom: 8px; /* Space between rows */ 
+        } 
+        .board-cell { 
+            width: 40px; /* Fixed width for cells */ 
+            height: 40px; /* Fixed height for cells */ 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-size: 2.5rem; 
+            font-weight: bold; 
+            border: 2px solid #555; /* Default border */ 
+            border-radius: 0.5rem; /* Slightly rounded corners for cells */ 
+            text-transform: uppercase; 
+            transition: background-color 0.3s ease, border-color 0.3s ease; 
+        } 
+        /* Cell feedback colors */ 
+        .cell-correct { 
+            background-color: #6aaa64; /* Green */ 
+            border-color: #6aaa64; 
+            color: white; 
+        } 
+        .cell-present { 
+            background-color: #c9b458; /* Yellow */ 
+            border-color: #c9b458; 
+            color: white; 
+        } 
+        .cell-absent { 
+            background-color: #787c7e; /* Gray */ 
+            border-color: #787c7e; 
+            color: white; 
+        } 
+        .cell-empty { 
+            border-color: #555; 
+        } 
+        .cell-filled { 
+            border-color: #888; 
+        } 
+ 
+        .message-box { 
+            background-color: #333; 
+            color: white; 
+            padding: 1rem; 
+            border-radius: 0.75rem; 
+            margin-top: 1rem; 
+            font-size: 1.1rem; 
+            min-height: 2.5rem; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity 0.3s ease; 
+        } 
+        .message-box.show { 
+            opacity: 1; 
+        } 
+ 
+        .restart-button { 
+            background-color: #3b82f6; /* Blue */ 
+            color: white; 
+            font-weight: bold; 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 0.75rem; 
+            cursor: pointer; 
+            transition: background-color 0.2s ease, transform 0.2s ease; 
+            margin-top: 1.5rem; 
+        } 
+        .restart-button:hover { 
+            background-color: #2563eb; 
+            transform: translateY(-2px); 
+        } 
+        .restart-button:active { 
+            transform: translateY(0); 
+        } 
+ 
+        /* Responsive adjustments */ 
+        @media (max-width: 600px) { 
+            .game-container { 
+                padding: 1.5rem; 
+                max-width: 100%; 
+            } 
+            .board-cell { 
+                width: 50px; 
+                height: 50px; 
+                font-size: 2rem; 
+            } 
+        } 
+    </style> 
+</head>
+<body> 
+    <div id="gameContainer" class="game-container"> 
+        <h1 class="text-4xl font-extrabold mb-6">Wordle</h1> 
+
+        <!-- Game Board --> 
+        <div id="gameBoard" class="flex flex-col items-center"></div> 
+
+        <!-- Message Box --> 
+        <div id="messageBox" class="message-box"></div> 
+
+        <button id="restartButton" class="restart-button hidden">Play Again</button> 
+    </div> 
+
+    <script>
+// --- Game Configuration ---
+const WORD_LENGTH = 5;
+const MAX_GUESSES = 6;
+// A small list of common 5-letter words for demonstration.
+// In a real game, this would be a much larger dictionary.
+const WORD_LIST = [
+  "about", "other", "which", "their", "there", "first", "would", "these", "click",
+  "price", "state", "email", "world", "music", "after", "video", "where", "books",
+  "links", "years", "order", "items", "group", "under", "games", "could", "great", "hotel",
+  "check", "index", "right", "local", "those", "using", "phone", "forum", "based", "black",
+  "being", "women", "today", "south", "pages", "found", "house", "photo", "power", "while",
+  "three", "total", "place", "think", "north", "posts", "media", "water", "since", "guide",
+  "board", "white", "small", "times", "sites", "level", "hours", "image", "title", "shall",
+  "class", "still", "money", "every", "visit", "tools", "reply", "value", "press", "learn",
+  "print", "stock", "point", "sales", "large", "table", "start", "model", "human", "movie",
+  "march", "yahoo", "going", "study", "staff", "again", "april", "never", "users", "topic",
+  "below", "party", "login", "legal", "above", "quote", "story", "rates", "young", "field",
+  "paper", "girls", "night", "texas", "poker", "issue", "range", "court", "audio", "light",
+  "write", "offer", "given", "files", "event", "china", "needs", "might", "major", "areas",
+  "space", "cards", "child", "enter", "share", "added", "radio", "color", "track", "least",
+  "trade", "david", "green", "close", "drive", "short", "means", "daily", "beach", "costs",
+  "style", "front", "parts", "early", "miles", "sound", "works", "rules", "final", "adult",
+  "thing", "cheap", "third", "gifts", "cover", "often", "watch", "deals",
+  "words", "linux", "james", "heart", "error", "clear", "makes", "india", "taken", "known",
+  "cases", "quick", "whole", "later", "basic", "shows", "along", "among", "death", "speed",
+  "brand", "stuff", "japan", "doing", "loans", "shoes", "entry", "notes", "force", "river",
+  "album", "plans", "loose", "lines", "apply", "asked", "cross", "weeks", "lower", "union",
+  "names", "leave", "teens", "woman", "cable", "score", "shown", "flash", "ideas", "allow",
+  "homes", "super", "cause", "focus", "rooms", "voice", "comes", "brown", "forms", "glass",
+  "happy", "smith", "prior", "sport", "ready", "build", "blood", "earth", "nokia", "italy",
+  "basis", "award", "peter", "extra", "rated", "quite", "horse", "stars", "lists", "owner",
+  "takes", "bring", "input", "agent", "valid", "grand", "trial", "units", "wrote", "ships",
+  "metal", "funds", "quest", "seems", "trust",
+  "multi", "grade", "panel", "floor", "match", "plant", "sense", "stage", "goods", "maybe",
+  "spain", "youth", "break", "dance", "apple", "enjoy", "block", "civil", "steel", "songs",
+  "fixed", "wrong", "hands", "paris", "fully", "worth", "peace", "coast", "grant", "agree",
+  "blogs", "scale", "stand", "frame", "chief", "gives", "heard", "begin", "royal", "clean",
+  "bible", "suite", "vegas", "chris", "piece", "sheet", "seven", "cells", "looks", "calls",
+  "whose", "naked", "lives", "stone", "tests", "buyer", "steve", "label", "scott", "canon",
+  "waste", "chair", "phase", "motor", "shirt", "crime", "count", "path", "santa", "alone",
+  "jones", "saint", "joint", "fresh", "dates", "court", "prize", "limit", "been", "louis",
+  "steps", "check", "urban", "banks", "labor", "admin", "heavy", "solid", "theme", "touch",
+  "goals", "serve", "magic", "mount", "smart", "latin",
+  "avoid", "birth", "virus", "abuse", "facts", "faith", "chain", "moved", "reach", "sorry",
+  "gamma", "truth", "films", "owned", "draft", "chart", "jesus", "clubs", "equal", "codes",
+  "kinds", "teams", "funny", "tried", "named", "later", "harry", "taxes", "mouse", "brain",
+  "dream", "false", "falls", "stats", "carry", "hello", "clips", "brief", "ended", "eight",
+  "voted", "event", "video", "truck", "votes", "ocean", "signs", "depth", "train", "feeds",
+  "route", "frank", "anime", "speak", "query", "rural", "judge", "betsy", "fight", "field",
+  "korea", "banks", "kelly", "leads", "brian", "miami", "wales", "noted", "spent", "davis",
+  "helps", "cycle", "sleep", "scene", "drink", "intel", "rings", "henry", "guess", "ahead",
+  "delta", "cisco", "algol", "bonus", "adobe", "trees", "dress", "refer", "babes", "layer",
+  "spend", "clock", "ratio", "proof", "empty", "maine",
+  "ideal", "specs", "parks", "cream", "boxes", "hills", "aware", "shape", "irish", "films",
+  "usage", "mixed", "exist", "wheel", "angel", "width", "noise", "array", "greek", "sharp",
+  "occur", "knows", "coach", "kevin", "plate", "logic", "sizes", "plain", "costs", "trail",
+  "buddy", "setup", "blues", "scope", "crazy", "ideas", "mouth", "meter", "fruit", "mysql",
+  "lewis", "speak", "stick", "allen", "green", "slide", "teach", "bound", "micro", "dolls",
+  "paint", "delay", "pilot", "czech", "novel", "ultra", "idaho", "truly", "drawn", "broad",
+  "swiss", "small", "clark", "foods", "guard", "newly", "raised", "drama", "bands", "lunch",
+  "adult", "polls", "tower", "yours", "jason", "shell", "catch", "doubt", "const", "doors",
+  "forth", "bruce", "split", "twice", "egypt", "shift", "inbox", "marks", "loved", "birds",
+  "saved", "shops", "moore", "treat", "piano", "risks",
+  "ports", "teach", "rapid", "hairy", "dutch", "boots", "holds", "pulse", "metro", "strip",
+  "pearl", "heads", "logos", "honda", "bills", "opera", "asset", "blank", "villa", "inner",
+  "panel", "meets", "tampa", "grace", "susan", "adams", "might", "dream", "taste", "sides",
+  "catch", "lease", "proud", "giant", "seats", "alarm", "usual", "angel", "vinyl", "worst",
+  "honor", "eagle", "pants", "nurse", "quiet", "comic", "crown", "maker", "crack", "picks",
+  "smoke", "craft", "apart", "blind", "coins", "prove", "gross", "epson", "rated", "moves",
+  "fifth", "worse", "trend", "rhode", "worse", "spoke", "tells", "fiber", "graph", "talks",
+  "bonds", "fraud", "crash", "inner", "grove", "spray", "roads", "faces", "mayor", "yield",
+  "hence", "radar", "lakes", "diary",
+  "kings", "flags", "baker", "shock", "walls", "ebony", "drama", "beast", "dodge", "pizza",
+  "yards", "woods", "halls", "globe", "dicky", "kerry", "ghost", "pride", "keith", "linda",
+  "chile", "maria", "brass", "plaza", "guest", "trans", "booty", "acres", "venue", "vista",
+  "excel", "modes", "enemy", "votes", "lucky", "thick", "chips", "terry", "flood", "arena",
+  "grown", "smile", "lands", "armed", "laura", "nikon", "candy", "pills", "tiger", "kicks",
+  "boost", "icons", "moral", "meyer", "bread", "tough", "donate", "billy", "craig", "nancy",
+  "jimmy", "rugby", "fluid", "barry", "devil", "grass", "marie", "kenya", "fault", "karen",
+  "stone", "tight", "towns", "worry", "reads", "glory", "saudi", "fault", "karen", "stone",
+  "tight", "towns", "worry", "reads", "glory", "saudi", "manga", "theft", "swing", "dated",
+  "shoot", "elite", "poems", "robot", "winds", "gnome", "roots",
+  "nobel", "shore", "loves", "loose", "slots", "rocks", "genes", "hosts", "atlas", "feels",
+  "ralph", "corps", "liver", "decor", "texts", "evans", "fails", "again", "alice", "intro",
+  "essay", "camps", "aaron", "trace", "packs", "spoke", "arrow", "rough", "weird", "holes",
+  "meals", "robin", "strap", "crowd", "cloud", "valve", "knife", "shelf", "liked", "adopt",
+  "notes", "tales", "bands", "seeds", "cited", "skype", "tired", "steam", "caught", "carol",
+  "stack", "curve", "threw", "bryan", "trunk", "camel", "lamps", "juice", "chase", "beads",
+  "flows", "fewer", "proxy", "lance", "bikes", "gates", "layer", "tycos", "znet", "combo",
+  "haven", "charm", "basin", "ranch", "drunk", "toner", "latex", "delhi", "alien", "broke",
+  "nepal", "nylon", "discs", "rocky", "fleet", "bunch",
+  "cents", "omega", "civic", "saver", "grill", "grain", "wanna", "seeks", "gains", "spots",
+  "spare", "kodak", "honey", "agony", "sight", "farms", "cheat", "sandy", "macro", "laugh",
+  "tough", "toner", "cloth", "stamp", "lotus", "carol", "salem", "jeans", "races", "model",
+  "noble", "blues", "janet", "bbb", "pride", "vance", "debug", "chuck", "ebook", "bingo",
+  "minds", "xanax", "sunny", "leeds", "cedar", "blair", "hopes", "mason", "burns", "pumps",
+  "mario", "utils", "pairs", "chose", "blast", "oasis", "angry", "dying", "stuck", "stops",
+  "vocal", "organ", "lemon", "toxic", "bench", "rider", "butts", "bobby",
+  "sheep", "wines", "salad", "paste", "katie", "relax", "sword", "sells", "coral", "pixel",
+  "paint", "colon", "paths", "acids", "diary", "admit", "fancy", "samoa", "squad", "wages",
+  "males", "chaos", "wheat", "bases", "unity", "bride", "beach", "socks", "essex", "fever"
+];
+
+// --- Game State Variables ---
+let secretWord = ''; // The word the player needs to guess
+let currentGuess = ''; // The word currently being typed
+let currentRow = 0; // The current row (guess attempt)
+let guesses = []; // Array to store all submitted guesses
+let gameOver = false; // Flag to indicate if the game has ended
+
+// --- DOM Elements ---
+const gameBoard = document.getElementById('gameBoard');
+const messageBox = document.getElementById('messageBox');
+const restartButton = document.getElementById('restartButton');
+
+// === Initialization ===
+function initializeGame() {
+    secretWord = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)].toUpperCase();
+    currentGuess = '';
+    currentRow = 0;
+    guesses = Array(MAX_GUESSES).fill(null);
+    gameOver = false;
+    renderBoard();
+    showMessage('');
+    restartButton.classList.add('hidden');
+    document.addEventListener('keydown', handleKeyPress);
+    console.log("Secret Word:", secretWord);
+}
+
+// === Rendering Functions ===
+function renderBoard() {
+    gameBoard.innerHTML = '';
+    for (let i = 0; i < MAX_GUESSES; i++) {
+        const row = document.createElement('div');
+        row.classList.add('board-row');
+        gameBoard.appendChild(row);
+        for (let j = 0; j < WORD_LENGTH; j++) {
+            const cell = document.createElement('div');
+            cell.classList.add('board-cell');
+            cell.id = `cell-${i}-${j}`;
+            row.appendChild(cell);
+        }
+    }
+    updateBoard();
+}
+
+function updateBoard() {
+    guesses.forEach((guessData, rowIndex) => {
+        if (guessData) {
+            const { word, feedback } = guessData;
+            for (let i = 0; i < WORD_LENGTH; i++) {
+                const cell = document.getElementById(`cell-${rowIndex}-${i}`);
+                if (cell) {
+                    cell.textContent = word[i];
+                    cell.className = 'board-cell';
+                    cell.classList.add(`cell-${feedback[i]}`);
+                }
+            }
+        }
+    });
+    for (let i = 0; i < WORD_LENGTH; i++) {
+        const cell = document.getElementById(`cell-${currentRow}-${i}`);
+        if (cell) {
+            cell.textContent = currentGuess[i] || '';
+            cell.className = 'board-cell';
+            cell.classList.add(currentGuess[i] ? 'cell-filled' : 'cell-empty');
+        }
+    }
+}
+
+function showMessage(message, duration = 2000) {
+    messageBox.textContent = message;
+    messageBox.classList.add('show');
+    if (message) setTimeout(() => messageBox.classList.remove('show'), duration);
+}
+
+// === Event Handlers ===
+function handleKeyPress(e) {
+    if (gameOver) return;
+    const key = e.key.toUpperCase();
+    if (key === 'BACKSPACE') currentGuess = currentGuess.slice(0, -1);
+    else if (key === 'ENTER') submitGuess();
+    else if (key.length === 1 && key >= 'A' && key <= 'Z' && currentGuess.length < WORD_LENGTH)
+        currentGuess += key;
+    updateBoard();
+}
+
+// === Core Logic ===
+function submitGuess() {
+    if (currentGuess.length !== WORD_LENGTH) return showMessage('Not enough letters!');
+    const feedback = getGuessFeedback(currentGuess, secretWord);
+    guesses[currentRow] = { word: currentGuess, feedback };
+    updateBoard();
+    if (currentGuess === secretWord) {
+        showMessage('You guessed it! 🎉', 3000);
+        endGame(true);
+        return;
+    }
+    currentRow++;
+    if (currentRow === MAX_GUESSES) {
+        showMessage(`Game Over! The word was ${secretWord}. 😔`, 4000);
+        endGame(false);
+        return;
+    }
+    currentGuess = '';
+}
+
+function getGuessFeedback(guess, target) {
+    const feedback = Array(WORD_LENGTH).fill('absent');
+    const freq = {};
+    for (const c of target) freq[c] = (freq[c] || 0) + 1;
+    for (let i = 0; i < WORD_LENGTH; i++)
+        if (guess[i] === target[i]) {
+            feedback[i] = 'correct';
+            freq[guess[i]]--;
+        }
+    for (let i = 0; i < WORD_LENGTH; i++)
+        if (feedback[i] === 'absent' && freq[guess[i]] > 0) {
+            feedback[i] = 'present';
+            freq[guess[i]]--;
+        }
+    return feedback;
+}
+
+// === End Game Function ===
+function endGame(won = false) {
+    gameOver = true;
+    document.removeEventListener('keydown', handleKeyPress);
+    restartButton.classList.remove('hidden');
+    restartButton.addEventListener('click', initializeGame, { once: true });
+}
+
+// === Start Game ===
+window.onload = initializeGame;
+</script>
+</body>
+</html>

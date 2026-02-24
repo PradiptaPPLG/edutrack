@@ -22,6 +22,13 @@ class User extends Authenticatable
         'email',
         'password',
         'google_id',
+        // TAMBAHKAN INI:
+        'xp',
+        'level',
+        'total_notes_count',
+        'completed_tasks_count',
+        'high_scores_count',
+        'attendance_count',
     ];
 
     /**
@@ -79,4 +86,27 @@ class User extends Authenticatable
     {
         return $this->hasMany(Attendance::class);
     }
+
+    // ============ TAMBAHKAN METHOD INI ============
+    public function gamification()
+    {
+        return new \App\Services\GamificationService($this);
+    }
+
+    public function getCurrentTierAttribute()
+    {
+        return \App\Models\LevelTier::getTier($this->level);
+    }
+
+    public function getNextTierAttribute()
+    {
+        return \App\Models\LevelTier::getNextLevelRequirement($this->level);
+    }
+
+    public function getTierProgressAttribute()
+    {
+        $gamification = new \App\Services\GamificationService($this);
+        return $gamification->getProgressToNextLevel();
+    }
+    // ===============================================
 }

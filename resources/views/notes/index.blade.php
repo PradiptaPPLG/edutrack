@@ -3,6 +3,34 @@
 
 @section('content')
 
+{{-- ===== NOTIFIKASI XP ===== --}}
+@if(session('success'))
+    @if(str_contains(session('success'), '+3 XP'))
+        <div class="mb-4 p-4 bg-gradient-to-r from-blue-400 to-indigo-500 text-white rounded-lg shadow-lg flex items-center gap-3">
+            <span class="text-2xl">📝</span>
+            <div class="flex-1">
+                <p class="font-bold">{{ session('success') }}</p>
+                <p class="text-sm text-blue-100">Total XP: {{ number_format(Auth::user()->xp) }} | Level {{ Auth::user()->level }}</p>
+            </div>
+            <span class="text-3xl">✨</span>
+        </div>
+    @elseif(str_contains(session('success'), '+5 XP'))
+        <div class="mb-4 p-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white rounded-lg shadow-lg flex items-center gap-3 animate-pulse">
+            <span class="text-2xl">🎉</span>
+            <div class="flex-1">
+                <p class="font-bold">{{ session('success') }}</p>
+                <p class="text-sm text-green-100">Total XP: {{ number_format(Auth::user()->xp) }} | Level {{ Auth::user()->level }}</p>
+            </div>
+            <span class="text-3xl">🏆</span>
+        </div>
+    @else
+        <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @endif
+@endif
+{{-- ===== END NOTIFIKASI XP ===== --}}
+
 {{-- Header dengan tombol tambah --}}
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-xl font-bold">Catatan Saya</h2>

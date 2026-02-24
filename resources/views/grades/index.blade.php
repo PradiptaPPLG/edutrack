@@ -4,6 +4,25 @@
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+{{-- ===== NOTIFIKASI XP ===== --}}
+@if(session('success'))
+    @if(str_contains(session('success'), '+10 XP'))
+        <div class="mb-4 p-4 bg-gradient-to-r from-yellow-400 to-amber-500 text-white rounded-lg shadow-lg flex items-center gap-3 animate-pulse">
+            <span class="text-2xl">⭐</span>
+            <div class="flex-1">
+                <p class="font-bold">{{ session('success') }}</p>
+                <p class="text-sm text-yellow-100">Total XP: {{ number_format(Auth::user()->xp) }} | Level {{ Auth::user()->level }}</p>
+            </div>
+            <span class="text-3xl">🏆</span>
+        </div>
+    @else
+        <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @endif
+@endif
+{{-- ===== END NOTIFIKASI XP ===== --}}
+
 {{-- Header dengan tombol tambah --}}
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-xl font-bold">Daftar Nilai</h2>

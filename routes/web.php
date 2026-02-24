@@ -12,6 +12,9 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\AccountController; 
+use App\Http\Controllers\GameController;
+use App\Http\Controllers\AchievementController; // TAMBAHKAN INI
+use App\Http\Controllers\SocialiteController; // TAMBAHKAN INI
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -26,43 +29,48 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
 
+// ===== SEMUA ROUTE YANG BUTUH AUTH DI SATU GROUP =====
 Route::middleware(['auth'])->group(function () {
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-});
-
-Route::middleware(['auth'])->group(function () {
+    
+    // Subjects
     Route::resource('subjects', SubjectController::class);
     Route::post('/subject-colors', [ColorController::class, 'store'])->name('colors.store');
     Route::post('/colors/ajax', [ColorController::class, 'ajaxStore']);
-});
-
-Route::middleware(['auth'])->group(function () {
+    
+    // Assignments, Schedules, Grades, Attendances, Notes
     Route::resource('assignments', AssignmentController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
     Route::resource('schedules', ScheduleController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
     Route::resource('grades', GradeController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
     Route::resource('attendances', AttendanceController::class);
-});
-
-Route::middleware(['auth'])->group(function () {
     Route::resource('notes', NoteController::class);
-});
-
-// Routes untuk Account (Profile & Settings)
-Route::middleware(['auth'])->group(function () {
+    
+    // Account (Profile & Settings)
     Route::get('/profile', [AccountController::class, 'profile'])->name('profile');
     Route::put('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
     Route::get('/settings', [AccountController::class, 'settings'])->name('settings');
     Route::put('/settings', [AccountController::class, 'updateSettings'])->name('settings.update');
+    
+    // Achievements
+    Route::get('/achievements', [AchievementController::class, 'index'])->name('achievements');
+    
+    // ===== GAMES ROUTES =====
+    // Halaman Game Hub (daftar semua game) - HANYA SATU!
+    Route::get('/games', function() {
+        return view('games.index');
+    })->name('games.index');
+    
+    // Halaman Wordle
+    Route::get('/game/wordle', function() {
+        return view('games.wordle');
+    })->name('game.wordle');
+    
+    Route::middleware(['web', 'auth'])->group(function () {
+    Route::post('/api/game/xp', [GameController::class, 'awardXp'])->name('game.xp');
+});
 });
 
-Route::get('/auth/google/redirect', [App\Http\Controllers\SocialiteController::class, 'redirectToGoogle'])->name('google.redirect');
-Route::get('/auth/google/callback', [App\Http\Controllers\SocialiteController::class, 'handleGoogleCallback'])->name('google.callback');
+// Google Auth (boleh di luar karena sudah handle sendiri)
+Route::get('/auth/google/redirect', [SocialiteController::class, 'redirectToGoogle'])->name('google.redirect');
+Route::get('/auth/google/callback', [SocialiteController::class, 'handleGoogleCallback'])->name('google.callback');

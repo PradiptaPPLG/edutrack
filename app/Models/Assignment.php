@@ -16,7 +16,7 @@ class Assignment extends Model
         'title',
         'due_date',
         'status',
-        'subject_id',
+        'xp_awarded_for_completion', // TAMBAHKAN INI
     ];
 
     protected function casts(): array
