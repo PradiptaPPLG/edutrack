@@ -184,23 +184,82 @@
         @php
             $nextTier = \App\Models\LevelTier::getNextLevelRequirement(Auth::user()->level);
             $gamification = new \App\Services\GamificationService(Auth::user());
-            $progress = $gamification->getProgressToNextLevel(); // INI SEKARANG INTEGER (ANGKA)
+            $progress = $gamification->getProgressToNextLevel();
         @endphp
         
         @if($nextTier)
         <div class="mt-2">
             <div class="flex justify-between text-xs text-gray-500 mb-1">
                 <span>Progress ke Level {{ Auth::user()->level + 1 }}</span>
-                {{-- PERBAIKAN: $progress LANGSUNG ANGKA, BUKAN ARRAY --}}
                 <span>{{ $progress }}%</span>
             </div>
             <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
                 <div class="h-full bg-gradient-to-r from-purple-500 to-yellow-500 rounded-full" 
-                     style="width: {{ $progress }}%"></div> {{-- PERBAIKAN DI SINI JUGA --}}
+                     style="width: {{ $progress }}%"></div>
             </div>
         </div>
         @endif
+        
     </div>
+    
+    {{-- STREAK SECTION - Menggunakan StreakService --}}
+    @php
+        $streak = Auth::user()->streak ?? 0;
+        $streakInfo = \App\Services\StreakService::getStreakInfo($streak);
+    @endphp
+
+    @if($streakInfo['level'] > 0)
+    <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-amber-50">
+        <div class="flex items-center gap-3">
+            <!-- Icon Streak -->
+            @if($streakInfo['icon'])
+            <img src="{{ $streakInfo['icon'] }}" class="w-8 h-8" alt="{{ $streakInfo['name'] }}">
+            @else
+            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                <span class="text-orange-600 text-lg">🔥</span>
+            </div>
+            @endif
+            
+            <!-- Info Streak -->
+            <div class="flex-1">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm font-semibold text-gray-800">
+                        {{ $streak }} Hari
+                    </span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-medium">
+                        {{ $streakInfo['name'] }}
+                    </span>
+                </div>
+                
+                <!-- Progress ke level streak berikutnya -->
+                @if($streakInfo['next_level'])
+                @php
+                    $progressPercentage = min(100, round(($streak / $streakInfo['next_level']) * 100));
+                @endphp
+                <div class="mt-1">
+                    <div class="flex justify-between text-xs text-gray-500">
+                        <span>Menuju {{ $streakInfo['next_level'] }} hari</span>
+                        <span>{{ $progressPercentage }}%</span>
+                    </div>
+                    <div class="h-1 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" 
+                             style="width: {{ $progressPercentage }}%"></div>
+                    </div>
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+    @elseif($streak > 0)
+    {{-- Streak tanpa level (1-2 hari) --}}
+    <div class="px-4 py-2 border-b border-gray-100 bg-gray-50">
+        <div class="flex items-center gap-2">
+            <span class="text-orange-500">🔥</span>
+            <span class="text-sm text-gray-700">{{ $streak }} Day Streak</span>
+            <span class="text-xs text-gray-500 ml-auto">Mulai streak!</span>
+        </div>
+    </div>
+    @endif
     
     <!-- Menu Items (seterusnya tetap sama) -->
     <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">

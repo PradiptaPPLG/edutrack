@@ -4,42 +4,49 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-
-// MODELS
 use App\Models\Grade;
-use App\Models\Attendance;
 use App\Models\Assignment;
-use App\Models\Schedule;
 
 class DashboardController extends Controller
 {
+    /**
+     * Menampilkan dashboard utama siswa
+     */
     public function index()
     {
         $user = Auth::user();
 
-        // ===================== SUMMARY DATA =====================
-        // Rata-rata nilai
+        // ===============================
+        // SUMMARY DATA
+        // ===============================
         $avgGrade = Grade::where('user_id', $user->id)->avg('score') ?? 0;
 
-        // Tugas pending (belum selesai)
         $pendingAssignments = Assignment::where('user_id', $user->id)
             ->where('status', 'Pending')
             ->count();
 
-        // Jadwal hari ini
-        $today = Carbon::now()->format('l'); // Monday, Tuesday, etc
-        $todaysSchedule = Schedule::where('user_id', $user->id)
+        // Jadwal hari ini (optional kalau relasi ada)
+        $today = Carbon::now()->format('l'); // Monday, Tuesday...
+        $todaysSchedule = $user->schedules()
             ->where('day', $today)
             ->orderBy('start_time')
             ->with('subject')
             ->get();
 
-        // ===================== RETURN VIEW =====================
-        // HANYA kirim variabel yang ADA di view
+        // ===============================
+        // 🔥 HEATMAP DATA (GitHub style)
+        // ===============================
+        $heatmap = Grade::where('user_id', $user->id)
+    ->selectRaw('DATE(created_at) as day, AVG(score) as avg_score')
+    ->groupBy('day')
+    ->pluck('avg_score', 'day')
+    ->toArray();
+
         return view('dashboard', compact(
             'avgGrade',
             'pendingAssignments',
-            'todaysSchedule'
+            'todaysSchedule',
+            'heatmap'
         ));
     }
 }

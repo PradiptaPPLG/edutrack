@@ -7,20 +7,15 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use App\Services\StreakService;
 
 class AuthController extends Controller
 {
-    /**
-     * Menampilkan halaman login.
-     */
     public function showLogin()
     {
         return view('auth.login');
     }
 
-    /**
-     * Menangani proses login pengguna.
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -30,6 +25,10 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            
+            // Update streak setelah login
+            StreakService::update(Auth::user());
+            
             return redirect()->intended('dashboard')->with('success', 'Login berhasil! Selamat datang kembali.');
         }
 
@@ -38,17 +37,11 @@ class AuthController extends Controller
         ])->onlyInput('email');
     }
 
-    /**
-     * Menampilkan halaman registrasi.
-     */
     public function showRegister()
     {
         return view('auth.register');
     }
 
-    /**
-     * Menangani proses registrasi pengguna baru.
-     */
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -61,6 +54,8 @@ class AuthController extends Controller
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'streak' => 1, // Langsung set streak 1 untuk user baru
+            'last_login_date' => now(),
         ]);
 
         Auth::login($user);
@@ -68,9 +63,6 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Registrasi berhasil! Selamat datang di EduTrack.');
     }
 
-    /**
-     * Menangani proses logout pengguna.
-     */
     public function logout(Request $request)
     {
         Auth::logout();

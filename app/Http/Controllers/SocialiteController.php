@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use App\Services\StreakService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class SocialiteController extends Controller
 {
@@ -34,22 +36,28 @@ class SocialiteController extends Controller
         $user = User::where('email', $googleUser->getEmail())->first();
 
         if (!$user) {
-            // User belum ada, buat baru
+            // User belum ada, buat baru dengan streak 1
             $user = User::create([
                 'name' => $googleUser->getName(),
                 'email' => $googleUser->getEmail(),
                 'google_id' => $googleUser->getId(),
                 'password' => Hash::make(Str::random(16)), // password random tidak dipakai
+                'streak' => 1, // Set streak awal 1 untuk user baru
+                'last_login_date' => Carbon::today(), // Set last login ke hari ini
             ]);
 
             // Download avatar dari Google dan simpan ke storage
             if ($googleUser->getAvatar()) {
-                $avatarUrl = $googleUser->getAvatar();
-                $contents = file_get_contents($avatarUrl);
-                $filename = 'profile-photos/' . uniqid() . '.jpg';
-                Storage::disk('public')->put($filename, $contents);
-                $user->profile_photo_path = $filename;
-                $user->save();
+                try {
+                    $avatarUrl = $googleUser->getAvatar();
+                    $contents = file_get_contents($avatarUrl);
+                    $filename = 'profile-photos/' . uniqid() . '.jpg';
+                    Storage::disk('public')->put($filename, $contents);
+                    $user->profile_photo_path = $filename;
+                    $user->save();
+                } catch (\Exception $e) {
+                    // Abaikan jika gagal download avatar
+                }
             }
         } else {
             // User sudah ada, update google_id jika belum ada
@@ -57,6 +65,9 @@ class SocialiteController extends Controller
                 $user->google_id = $googleUser->getId();
                 $user->save();
             }
+            
+            // Update streak menggunakan StreakService
+            StreakService::update($user);
         }
 
         // Login user
