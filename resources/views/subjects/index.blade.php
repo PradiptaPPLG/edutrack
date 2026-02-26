@@ -3,6 +3,31 @@
 
 @section('content')
 
+<style>
+/* Animasi fade in up - sama seperti di dashboard */
+.fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.3, 1), 
+                transform 0.8s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.fade-in-up.animated {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Hover effect untuk kartu */
+.subject-card {
+    transition: all 0.3s ease;
+}
+
+.subject-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+</style>
+
 {{-- HEADER --}}
 <div class="flex justify-between items-center mb-6">
     <h2 class="text-xl font-bold">Daftar Mata Pelajaran</h2>
@@ -14,7 +39,8 @@
 {{-- GRID CARD MATA PELAJARAN --}}
 <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
 @foreach($subjects as $subject)
-<div class="bg-white rounded-xl shadow border p-4 relative">
+<div class="bg-white rounded-xl shadow border p-4 relative fade-in-up subject-card" 
+     style="transition-delay: {{ $loop->index * 0.15 }}s;">
     {{-- Strip warna di sisi kiri --}}
     <div class="absolute left-0 top-0 h-full w-2 rounded-l-xl" style="background: {{ $subject->color_code }}"></div>
     <h3 class="font-semibold text-lg">{{ $subject->name }}</h3>
@@ -196,6 +222,20 @@ async function addColorAjax(){
     showToast("Warna ditambahkan");
     closeColorModal();
 }
+
+// Trigger animasi fade-in-up setelah halaman dimuat
+document.addEventListener('DOMContentLoaded', function() {
+    // Tambahkan class animated ke setiap kartu dengan delay (jika belum menggunakan style inline)
+    // Sebenarnya kita sudah menggunakan transition-delay inline, jadi kita hanya perlu memicu animasi
+    // dengan menambahkan class 'animated' setelah halaman siap.
+    const cards = document.querySelectorAll('.subject-card');
+    cards.forEach((card, index) => {
+        // Gunakan timeout agar animasi tetap bertahap, meskipun sudah ada transition-delay di style
+        setTimeout(() => {
+            card.classList.add('animated');
+        }, index * 50); // delay 150ms per kartu
+    });
+});
 </script>
 
 @endsection
