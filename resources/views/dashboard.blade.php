@@ -14,7 +14,11 @@
 <div x-data="{ 
         loading: true,
         showNotification: @json($showLoginNotification),
-        showContent: false
+        showContent: false,
+        avgGrade: 0,
+        pendingAssignments: 0,
+        finalAvgGrade: {{ $avgGrade }},
+        finalPendingAssignments: {{ $pendingAssignments }}
     }" 
     x-init="
         setTimeout(() => { 
@@ -31,10 +35,51 @@
                 document.querySelectorAll('.fade-in-up').forEach((el, index) => {
                     setTimeout(() => {
                         el.classList.add('animated');
-                    }, index * 150); // delay 150ms per elemen
+                        
+                        // Mulai animasi angka setelah elemen muncul
+                        if (el.classList.contains('stats-card')) {
+                            animateNumbers();
+                        }
+                    }, index * 180); // delay 180ms per elemen
                 });
             }, 100);
-        }, 2500)
+        }, 2000)
+        
+        // Fungsi animasi angka
+        function animateNumbers() {
+            // Animasi untuk rata-rata nilai
+            let startAvg = 0;
+            let endAvg = finalAvgGrade;
+            let duration = 1500; // 1.5 detik
+            let stepTime = 20; // update setiap 20ms
+            let steps = duration / stepTime;
+            let incrementAvg = endAvg / steps;
+            
+            let avgInterval = setInterval(() => {
+                startAvg += incrementAvg;
+                if (startAvg >= endAvg) {
+                    avgGrade = endAvg.toFixed(2);
+                    clearInterval(avgInterval);
+                } else {
+                    avgGrade = startAvg.toFixed(2);
+                }
+            }, stepTime);
+            
+            // Animasi untuk tugas belum selesai
+            let startPending = 0;
+            let endPending = finalPendingAssignments;
+            let incrementPending = endPending / steps;
+            
+            let pendingInterval = setInterval(() => {
+                startPending += incrementPending;
+                if (startPending >= endPending) {
+                    pendingAssignments = endPending;
+                    clearInterval(pendingInterval);
+                } else {
+                    pendingAssignments = Math.floor(startPending);
+                }
+            }, stepTime);
+        }
     ">
     
     <!-- Loading Spinner di dalam dashboard -->
@@ -104,6 +149,12 @@
             transform: translateY(-5px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+
+        /* Animasi untuk angka */
+        .stat-number {
+            display: inline-block;
+            transition: all 0.2s ease;
+        }
         </style>
 
         <!-- ================= HERO SECTION ================= -->
@@ -127,10 +178,12 @@
         <!-- ================= SUMMARY CARDS ================= -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <!-- AVG GRADE -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between summary-card fade-in-up">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between summary-card fade-in-up stats-card">
                 <div>
                     <p class="text-sm text-gray-500">Rata-rata Nilai</p>
-                    <h3 class="text-3xl font-bold text-gray-900">{{ number_format($avgGrade, 2) }}</h3>
+                    <h3 class="text-3xl font-bold text-gray-900">
+                        <span x-text="avgGrade" class="stat-number"></span>
+                    </h3>
                 </div>
                 <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
                     <span class="material-symbols-outlined">grade</span>
@@ -138,10 +191,12 @@
             </div>
 
             <!-- PENDING ASSIGNMENTS -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between summary-card fade-in-up">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between summary-card fade-in-up stats-card">
                 <div>
                     <p class="text-sm text-gray-500">Tugas Belum Selesai</p>
-                    <h3 class="text-3xl font-bold text-gray-900">{{ $pendingAssignments }}</h3>
+                    <h3 class="text-3xl font-bold text-gray-900">
+                        <span x-text="pendingAssignments" class="stat-number"></span>
+                    </h3>
                 </div>
                 <div class="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-600">
                     <span class="material-symbols-outlined">assignment_late</span>

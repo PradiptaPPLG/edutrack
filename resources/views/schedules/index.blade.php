@@ -211,13 +211,15 @@ function closeAddModal(e){
     }
 }
 
-function openEditModal(id,subject,day,start,end){
+function openEditModal(id, subject, day, start, end) {
     editModal.classList.remove('hidden');
-    editForm.action="/schedules/"+id;
-    editSubject.value=subject;
-    editDay.value=day;
-    editStart.value=start;
-    editEnd.value=end;
+    editForm.action = "/schedules/" + id;
+    editSubject.value = subject;
+    editDay.value = day;
+    
+    // Potong detik (ambil hanya jam:menit)
+    editStart.value = start.substring(0, 5);  // "09:00:00" → "09:00"
+    editEnd.value = end.substring(0, 5);      // "10:00:00" → "10:00"
     
     setTimeout(() => {
         document.getElementById('editModalContent').classList.remove('scale-95', 'opacity-0');

@@ -40,6 +40,8 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        /* Sembunyikan elemen dengan x-cloak sampai Alpine siap */
+        [x-cloak] { display: none !important; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-900 antialiased" 
@@ -176,138 +178,139 @@
                 </button>
                 
                 <!-- Dropdown menu LENGKAP dengan animasi slide dari atas -->
-<div x-show="open" 
-     @click.away="open = false"
-     x-transition:enter="transition ease-out duration-200"
-     x-transition:enter-start="opacity-0 -translate-y-2"
-     x-transition:enter-end="opacity-100 translate-y-0"
-     x-transition:leave="transition ease-in duration-150"
-     x-transition:leave-start="opacity-100 translate-y-0"
-     x-transition:leave-end="opacity-0 -translate-y-2"
-     class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
-    
-    <!-- User info dengan gamifikasi -->
-    <div class="px-4 py-3 border-b border-gray-100">
-        <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
-        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
-        
-        <!-- Level & XP Badge -->
-        <div class="mt-2 flex items-center gap-2">
-            <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
-                Level {{ Auth::user()->level }}
-            </span>
-            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-medium">
-                {{ number_format(Auth::user()->xp) }} XP
-            </span>
-        </div>
-        
-        <!-- Current Tier Name -->
-        @php
-            $currentTier = \App\Models\LevelTier::getTier(Auth::user()->level);
-        @endphp
-        <p class="text-xs text-gray-600 mt-1 italic truncate">
-            "{{ $currentTier['name'] }}"
-        </p>
-        
-        <!-- Progress bar ke next level -->
-        @php
-            $nextTier = \App\Models\LevelTier::getNextLevelRequirement(Auth::user()->level);
-            $gamification = new \App\Services\GamificationService(Auth::user());
-            $progress = $gamification->getProgressToNextLevel();
-        @endphp
-        
-        @if($nextTier)
-        <div class="mt-2">
-            <div class="flex justify-between text-xs text-gray-500 mb-1">
-                <span>Progress ke Level {{ Auth::user()->level + 1 }}</span>
-                <span>{{ $progress }}%</span>
-            </div>
-            <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-purple-500 to-yellow-500 rounded-full" 
-                     style="width: {{ $progress }}%"></div>
-            </div>
-        </div>
-        @endif
-        
-    </div>
-    
-    <!-- Streak Section -->
-    @php
-        $streak = Auth::user()->streak ?? 0;
-        $streakInfo = \App\Services\StreakService::getStreakInfo($streak);
-    @endphp
+                <div x-show="open" 
+                     x-cloak
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
+                    
+                    <!-- User info dengan gamifikasi -->
+                    <div class="px-4 py-3 border-b border-gray-100">
+                        <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                        
+                        <!-- Level & XP Badge -->
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
+                                Level {{ Auth::user()->level }}
+                            </span>
+                            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-medium">
+                                {{ number_format(Auth::user()->xp) }} XP
+                            </span>
+                        </div>
+                        
+                        <!-- Current Tier Name -->
+                        @php
+                            $currentTier = \App\Models\LevelTier::getTier(Auth::user()->level);
+                        @endphp
+                        <p class="text-xs text-gray-600 mt-1 italic truncate">
+                            "{{ $currentTier['name'] }}"
+                        </p>
+                        
+                        <!-- Progress bar ke next level -->
+                        @php
+                            $nextTier = \App\Models\LevelTier::getNextLevelRequirement(Auth::user()->level);
+                            $gamification = new \App\Services\GamificationService(Auth::user());
+                            $progress = $gamification->getProgressToNextLevel();
+                        @endphp
+                        
+                        @if($nextTier)
+                        <div class="mt-2">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Progress ke Level {{ Auth::user()->level + 1 }}</span>
+                                <span>{{ $progress }}%</span>
+                            </div>
+                            <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-purple-500 to-yellow-500 rounded-full" 
+                                     style="width: {{ $progress }}%"></div>
+                            </div>
+                        </div>
+                        @endif
+                        
+                    </div>
+                    
+                    <!-- Streak Section -->
+                    @php
+                        $streak = Auth::user()->streak ?? 0;
+                        $streakInfo = \App\Services\StreakService::getStreakInfo($streak);
+                    @endphp
 
-    @if($streakInfo['level'] > 0)
-    <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-amber-50">
-        <div class="flex items-center gap-3">
-            @if($streakInfo['icon'])
-            <img src="{{ $streakInfo['icon'] }}" class="w-8 h-8" alt="{{ $streakInfo['name'] }}">
-            @else
-            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
-                <span class="text-orange-600 text-lg">🔥</span>
-            </div>
-            @endif
-            
-            <div class="flex-1">
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-semibold text-gray-800">
-                        {{ $streak }} Hari
-                    </span>
-                    <span class="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-medium">
-                        {{ $streakInfo['name'] }}
-                    </span>
-                </div>
-                
-                @if($streakInfo['next_level'])
-                @php
-                    $progressPercentage = min(100, round(($streak / $streakInfo['next_level']) * 100));
-                @endphp
-                <div class="mt-1">
-                    <div class="flex justify-between text-xs text-gray-500">
-                        <span>Menuju {{ $streakInfo['next_level'] }} hari</span>
-                        <span>{{ $progressPercentage }}%</span>
+                    @if($streakInfo['level'] > 0)
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-amber-50">
+                        <div class="flex items-center gap-3">
+                            @if($streakInfo['icon'])
+                            <img src="{{ $streakInfo['icon'] }}" class="w-8 h-8" alt="{{ $streakInfo['name'] }}">
+                            @else
+                            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                                <span class="text-orange-600 text-lg">🔥</span>
+                            </div>
+                            @endif
+                            
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-800">
+                                        {{ $streak }} Hari
+                                    </span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-medium">
+                                        {{ $streakInfo['name'] }}
+                                    </span>
+                                </div>
+                                
+                                @if($streakInfo['next_level'])
+                                @php
+                                    $progressPercentage = min(100, round(($streak / $streakInfo['next_level']) * 100));
+                                @endphp
+                                <div class="mt-1">
+                                    <div class="flex justify-between text-xs text-gray-500">
+                                        <span>Menuju {{ $streakInfo['next_level'] }} hari</span>
+                                        <span>{{ $progressPercentage }}%</span>
+                                    </div>
+                                    <div class="h-1 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" 
+                                             style="width: {{ $progressPercentage }}%"></div>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                    <div class="h-1 bg-gray-200 rounded-full mt-1 overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" 
-                             style="width: {{ $progressPercentage }}%"></div>
+                    @elseif($streak > 0)
+                    <div class="px-4 py-2 border-b border-gray-100 bg-gray-50">
+                        <div class="flex items-center gap-2">
+                            <span class="text-orange-500">🔥</span>
+                            <span class="text-sm text-gray-700">{{ $streak }} Day Streak</span>
+                            <span class="text-xs text-gray-500 ml-auto">Mulai streak!</span>
+                        </div>
                     </div>
+                    @endif
+                    
+                    <!-- Menu Items -->
+                    <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">account_circle</span> Profile
+                    </a>
+                    
+                    <a href="{{ route('achievements') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
+                        <span class="material-symbols-outlined text-sm text-yellow-500">emoji_events</span> 
+                        <span class="flex-1">Achievements</span>
+                        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">{{ Auth::user()->level }}/16</span>
+                    </a>
+                    
+                    <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-sm">settings</span> Settings
+                    </a>
+                    
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
+                            <span class="material-symbols-outlined text-sm">logout</span> Logout
+                        </button>
+                    </form>
                 </div>
-                @endif
-            </div>
-        </div>
-    </div>
-    @elseif($streak > 0)
-    <div class="px-4 py-2 border-b border-gray-100 bg-gray-50">
-        <div class="flex items-center gap-2">
-            <span class="text-orange-500">🔥</span>
-            <span class="text-sm text-gray-700">{{ $streak }} Day Streak</span>
-            <span class="text-xs text-gray-500 ml-auto">Mulai streak!</span>
-        </div>
-    </div>
-    @endif
-    
-    <!-- Menu Items -->
-    <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-        <span class="material-symbols-outlined text-sm">account_circle</span> Profile
-    </a>
-    
-    <a href="{{ route('achievements') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
-        <span class="material-symbols-outlined text-sm text-yellow-500">emoji_events</span> 
-        <span class="flex-1">Achievements</span>
-        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">{{ Auth::user()->level }}/16</span>
-    </a>
-    
-    <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
-        <span class="material-symbols-outlined text-sm">settings</span> Settings
-    </a>
-    
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
-            <span class="material-symbols-outlined text-sm">logout</span> Logout
-        </button>
-    </form>
-</div>
             </div>
         </div>
     </header>
@@ -350,7 +353,7 @@
             Toast.fire({ icon: 'error', title: '{{ session('error') }}' });
         @endif
         @if(session('info'))
-            Toast.fire({ icon: 'info', title: '{{ session('info') }}' });
+            Toast.fire({ icon: 'info', title: '{{ session('info') }}' }); // ← DIPERBAIKI: tutup kurung dengan benar
         @endif
 
         // Delete confirmation
