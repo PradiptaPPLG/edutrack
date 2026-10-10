@@ -29,6 +29,8 @@ class User extends Authenticatable
         'completed_tasks_count',
         'high_scores_count',
         'attendance_count',
+        'streak',
+        'last_login_date',
     ];
 
     /**

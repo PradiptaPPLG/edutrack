@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Hanya tambah last_login_date jika belum ada
             if (!Schema::hasColumn('users', 'last_login_date')) {
-                $table->date('last_login_date')->nullable()->after('streak');
+                $table->date('last_login_date')->nullable()->after('attendance_count');
             }
         });
     }
