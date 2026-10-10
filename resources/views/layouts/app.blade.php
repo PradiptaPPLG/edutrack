@@ -14,10 +14,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
-    <!-- Alpine.js untuk interaktivitas -->
+    <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Cropper.js untuk crop foto -->
+    <!-- Cropper.js -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
@@ -40,19 +40,32 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
+        /* Sembunyikan elemen dengan x-cloak sampai Alpine siap */
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-900 antialiased">
+<body class="bg-gray-50 text-gray-900 antialiased" 
+      x-data="{ sidebarOpen: true }">
     @auth
-    
-    <!-- Sidebar Fixed -->
-    <aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col z-20">
-        <!-- Logo -->
-        <div class="h-16 flex items-center px-6 border-b border-gray-200 flex-shrink-0">
+
+    <!-- Sidebar dengan animasi slide -->
+    <aside class="fixed top-0 left-0 w-64 h-screen bg-white border-r border-gray-200 flex flex-col z-20"
+           x-show="sidebarOpen"
+           x-transition:enter="transition transform ease-out duration-300"
+           x-transition:enter-start="-translate-x-full"
+           x-transition:enter-end="translate-x-0"
+           x-transition:leave="transition transform ease-in duration-300"
+           x-transition:leave-start="translate-x-0"
+           x-transition:leave-end="-translate-x-full">
+        <!-- Logo dengan tombol close di sebelah kanan -->
+        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-200 flex-shrink-0">
             <span class="text-xl font-bold text-primary flex items-center gap-2">
                 <span class="material-symbols-outlined">school</span>
                 Edutrack
             </span>
+            <button @click="sidebarOpen = false" class="p-1 rounded-lg hover:bg-gray-100 focus:outline-none">
+                <span class="material-symbols-outlined">chevron_left</span>
+            </button>
         </div>
 
         <!-- Navigasi sidebar -->
@@ -109,16 +122,39 @@
                     </a>
                 </div>
             </div>
+            
+            <!-- Mini Games -->
+            <div>
+                <h3 class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Mini Games</h3>
+                <div class="space-y-1">
+                    <a href="{{ route('games.index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-lg {{ request()->routeIs('games.*') ? 'bg-sky-50 text-primary font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                        <span class="material-symbols-outlined">sports_esports</span>
+                        Game Hub
+                    </a>
+                </div>
+            </div>
         </nav>
     </aside>
 
-    <!-- Header Fixed -->
-    <header class="fixed top-0 left-64 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-10">
-        <h1 class="text-lg font-semibold text-gray-800">
-            @yield('header', 'Dashboard')
-        </h1>
+    <!-- Header dengan tombol hamburger -->
+    <header class="fixed top-0 right-0 h-16 bg-white border-b border-gray-200 flex items-center justify-between px-8 z-50"
+            :style="{ left: sidebarOpen ? '16rem' : '0' }"
+            style="transition: left 0.3s ease;">
         <div class="flex items-center gap-4">
-            <!-- Dropdown User dengan Alpine.js -->
+            <!-- Tombol hamburger untuk membuka sidebar -->
+            <button x-show="!sidebarOpen" @click="sidebarOpen = true" 
+                    class="p-2 rounded-lg hover:bg-gray-100 focus:outline-none"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-90"
+                    x-transition:enter-end="opacity-100 scale-100">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
+            <h1 class="text-lg font-semibold text-gray-800">
+                @yield('header', 'Dashboard')
+            </h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Dropdown User dengan Alpine.js dan animasi -->
             <div class="relative" x-data="{ open: false }">
                 <button @click="open = !open" class="flex items-center gap-3 focus:outline-none">
                     <span class="text-sm text-gray-600">Selamat datang, <strong>{{ Auth::user()->name }}</strong></span>
@@ -126,10 +162,8 @@
                         @php
                             $photoPath = Auth::user()->profile_photo_path;
                             $photoUrl = null;
-                            if ($photoPath) {
-                                if (Storage::disk('public')->exists($photoPath)) {
-                                    $photoUrl = asset('storage/' . $photoPath);
-                                }
+                            if ($photoPath && Storage::disk('public')->exists($photoPath)) {
+                                $photoUrl = asset('storage/' . $photoPath);
                             }
                         @endphp
                         @if($photoUrl)
@@ -142,17 +176,137 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
                 </button>
-                <!-- Dropdown menu -->
-                <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200" style="display: none;">
+                
+                <!-- Dropdown menu LENGKAP dengan animasi slide dari atas -->
+                <div x-show="open" 
+                     x-cloak
+                     @click.away="open = false"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     x-transition:leave="transition ease-in duration-150"
+                     x-transition:leave-start="opacity-100 translate-y-0"
+                     x-transition:leave-end="opacity-0 -translate-y-2"
+                     class="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-1 z-20 border border-gray-200">
+                    
+                    <!-- User info dengan gamifikasi -->
+                    <div class="px-4 py-3 border-b border-gray-100">
+                        <p class="text-sm font-semibold text-gray-800">{{ Auth::user()->name }}</p>
+                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                        
+                        <!-- Level & XP Badge -->
+                        <div class="mt-2 flex items-center gap-2">
+                            <span class="bg-purple-100 text-purple-700 text-xs px-2 py-1 rounded-full font-medium">
+                                Level {{ Auth::user()->level }}
+                            </span>
+                            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-medium">
+                                {{ number_format(Auth::user()->xp) }} XP
+                            </span>
+                        </div>
+                        
+                        <!-- Current Tier Name -->
+                        @php
+                            $currentTier = \App\Models\LevelTier::getTier(Auth::user()->level);
+                        @endphp
+                        <p class="text-xs text-gray-600 mt-1 italic truncate">
+                            "{{ $currentTier['name'] }}"
+                        </p>
+                        
+                        <!-- Progress bar ke next level -->
+                        @php
+                            $nextTier = \App\Models\LevelTier::getNextLevelRequirement(Auth::user()->level);
+                            $gamification = new \App\Services\GamificationService(Auth::user());
+                            $progress = $gamification->getProgressToNextLevel();
+                        @endphp
+                        
+                        @if($nextTier)
+                        <div class="mt-2">
+                            <div class="flex justify-between text-xs text-gray-500 mb-1">
+                                <span>Progress ke Level {{ Auth::user()->level + 1 }}</span>
+                                <span>{{ $progress }}%</span>
+                            </div>
+                            <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-purple-500 to-yellow-500 rounded-full" 
+                                     style="width: {{ $progress }}%"></div>
+                            </div>
+                        </div>
+                        @endif
+                        
+                    </div>
+                    
+                    <!-- Streak Section -->
+                    @php
+                        $streak = Auth::user()->streak ?? 0;
+                        $streakInfo = \App\Services\StreakService::getStreakInfo($streak);
+                    @endphp
+
+                    @if($streakInfo['level'] > 0)
+                    <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-orange-50 to-amber-50">
+                        <div class="flex items-center gap-3">
+                            @if($streakInfo['icon'])
+                            <img src="{{ $streakInfo['icon'] }}" class="w-8 h-8" alt="{{ $streakInfo['name'] }}">
+                            @else
+                            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center">
+                                <span class="text-orange-600 text-lg">🔥</span>
+                            </div>
+                            @endif
+                            
+                            <div class="flex-1">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-semibold text-gray-800">
+                                        {{ $streak }} Hari
+                                    </span>
+                                    <span class="text-xs px-2 py-0.5 rounded-full bg-orange-200 text-orange-800 font-medium">
+                                        {{ $streakInfo['name'] }}
+                                    </span>
+                                </div>
+                                
+                                @if($streakInfo['next_level'])
+                                @php
+                                    $progressPercentage = min(100, round(($streak / $streakInfo['next_level']) * 100));
+                                @endphp
+                                <div class="mt-1">
+                                    <div class="flex justify-between text-xs text-gray-500">
+                                        <span>Menuju {{ $streakInfo['next_level'] }} hari</span>
+                                        <span>{{ $progressPercentage }}%</span>
+                                    </div>
+                                    <div class="h-1 bg-gray-200 rounded-full mt-1 overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-orange-400 to-red-500 rounded-full" 
+                                             style="width: {{ $progressPercentage }}%"></div>
+                                    </div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    @elseif($streak > 0)
+                    <div class="px-4 py-2 border-b border-gray-100 bg-gray-50">
+                        <div class="flex items-center gap-2">
+                            <span class="text-orange-500">🔥</span>
+                            <span class="text-sm text-gray-700">{{ $streak }} Day Streak</span>
+                            <span class="text-xs text-gray-500 ml-auto">Mulai streak!</span>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    <!-- Menu Items -->
                     <a href="{{ route('profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">account_circle</span> Profile
                     </a>
+                    
+                    <a href="{{ route('achievements') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
+                        <span class="material-symbols-outlined text-sm text-yellow-500">emoji_events</span> 
+                        <span class="flex-1">Achievements</span>
+                        <span class="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full">{{ Auth::user()->level }}/16</span>
+                    </a>
+                    
                     <a href="{{ route('settings') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
                         <span class="material-symbols-outlined text-sm">settings</span> Settings
                     </a>
+                    
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2">
+                        <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 border-t border-gray-100">
                             <span class="material-symbols-outlined text-sm">logout</span> Logout
                         </button>
                     </form>
@@ -162,7 +316,8 @@
     </header>
 
     <!-- Main Content -->
-    <main class="ml-64 pt-16 min-h-screen">
+    <main class="pt-16 min-h-screen transition-all duration-300"
+          :class="sidebarOpen ? 'ml-64' : 'ml-0'">
         <div class="p-8">
             @yield('content')
         </div>
@@ -191,56 +346,46 @@
             }
         });
 
-        // Session flash messages
         @if(session('success'))
-            Toast.fire({
-                icon: 'success',
-                title: '{{ session('success') }}'
-            });
+            Toast.fire({ icon: 'success', title: '{{ session('success') }}' });
         @endif
-
         @if(session('error'))
-            Toast.fire({
-                icon: 'error',
-                title: '{{ session('error') }}'
-            });
+            Toast.fire({ icon: 'error', title: '{{ session('error') }}' });
+        @endif
+        @if(session('info'))
+            Toast.fire({ icon: 'info', title: '{{ session('info') }}' }); // ← DIPERBAIKI: tutup kurung dengan benar
         @endif
 
-        // Delete confirmation untuk semua form dengan method DELETE
+        // Delete confirmation
         document.addEventListener('click', function(e) {
-            if (e.target.closest('.delete-btn') || e.target.closest('form[method="POST"] button[type="submit"]')) {
-                const button = e.target.closest('button');
-                const form = button.closest('form');
-
-                if (form && form.querySelector('input[name="_method"][value="DELETE"]')) {
-                    e.preventDefault();
-
-                    Swal.fire({
-                        title: 'Apakah Anda yakin?',
-                        text: "Data yang dihapus tidak dapat dikembalikan!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        cancelButtonColor: '#3085d6',
-                        confirmButtonText: 'Ya, hapus!',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                }
+            const button = e.target.closest('button[type="submit"]');
+            if (!button) return;
+            const form = button.closest('form');
+            if (!form) return;
+            if (form.action && form.action.includes('logout')) return;
+            const methodInput = form.querySelector('input[name="_method"][value="DELETE"]');
+            if (methodInput) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data yang dihapus tidak dapat dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) form.submit();
+                });
             }
         });
 
-        // Fitur yang belum tersedia
+        // Fitur belum tersedia
         document.querySelectorAll('a[href="#"]').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                Toast.fire({
-                    icon: 'info',
-                    title: 'Fitur belum tersedia'
-                });
+                Toast.fire({ icon: 'info', title: 'Fitur belum tersedia' });
             });
         });
     </script>

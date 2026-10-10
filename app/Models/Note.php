@@ -23,6 +23,7 @@ class Note extends Model
         'content',
         'status',
         'is_favorite',
+        'xp_awarded_for_completion', // TAMBAHKAN INI
     ];
 
     /**

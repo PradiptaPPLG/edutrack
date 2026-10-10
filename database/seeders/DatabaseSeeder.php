@@ -23,11 +23,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $user = User::factory()->create([
-            'name' => 'Siswa EduTrack',
-            'email' => 'siswa@edutrack.com',
-            'password' => bcrypt('password'),
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'siswa@edutrack.com'],
+            [
+                'name' => 'Siswa EduTrack',
+                'password' => bcrypt('password'),
+            ]
+        );
 
         // $subjects = Subject::factory(6)->create([
         //     'user_id' => $user->id,

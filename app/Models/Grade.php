@@ -15,6 +15,7 @@ class Grade extends Model
         'subject_id',
         'activity_name',
         'score',
+        'xp_awarded_for_high_score', // TAMBAHKAN INI
     ];
 
     public function user(): BelongsTo

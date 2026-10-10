@@ -7,6 +7,7 @@ use App\Models\Subject;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreGradeRequest;
 use App\Http\Requests\UpdateGradeRequest;
+use App\Services\GamificationService; // TAMBAHKAN
 
 class GradeController extends Controller
 {
@@ -40,27 +41,61 @@ class GradeController extends Controller
             'grades','subjects',
             'lineLabels','lineScores',
             'barLabels','barScores',
-            'kkm' // Kirim kkm ke view
+            'kkm'
         ));
     }
     
     public function store(StoreGradeRequest $request)
     {
-        Grade::create([
+        $grade = Grade::create([
             'user_id' => Auth::id(),
-            ...$request->validated()
+            ...$request->validated(),
+            'xp_awarded_for_high_score' => false, // Default false
         ]);
 
-        return back()->with('success','Nilai ditambahkan');
+        // CEK: Jika nilai >= 80, kasih XP (hanya sekali)
+        if ($grade->score >= 80) {
+            $gamification = new GamificationService(Auth::user());
+            $gamification->addHighScore();
+            
+            // Tandai sudah dapat XP
+            $grade->xp_awarded_for_high_score = true;
+            $grade->save();
+            
+            return back()->with('success', 'Nilai ditambahkan! +10 XP ⭐ (Nilai Tinggi)');
+        }
+
+        return back()->with('success', 'Nilai ditambahkan');
     }
 
     public function update(UpdateGradeRequest $request, Grade $grade)
     {
         abort_if($grade->user_id !== Auth::id(), 403);
 
+        $oldScore = $grade->score;
+        $oldXpAwarded = $grade->xp_awarded_for_high_score;
+        $oldSubjectId = $grade->subject_id;
+        
         $grade->update($request->validated());
+        
+        // CEK KRITERIA XP:
+        // 1. Nilai baru >= 80
+        // 2. Belum pernah dapat XP untuk grade ini
+        // 3. (Opsional) Nilai lama < 80 (biar fair, tapi tidak wajib)
+        if ($grade->score >= 80 && !$oldXpAwarded) {
+            
+            // Tandai sudah dapat XP
+            $grade->xp_awarded_for_high_score = true;
+            $grade->save();
+            
+            // Kasih XP +10
+            $gamification = new GamificationService(Auth::user());
+            $gamification->addHighScore();
+            
+            return back()->with('success', 'Nilai diperbarui! +10 XP ⭐ (Nilai Tinggi)');
+        }
 
-        return back()->with('success','Nilai diperbarui');
+        return back()->with('success', 'Nilai diperbarui');
     }
 
     public function destroy(Grade $grade)
@@ -68,6 +103,6 @@ class GradeController extends Controller
         abort_if($grade->user_id !== Auth::id(), 403);
 
         $grade->delete();
-        return back()->with('success','Nilai dihapus');
+        return back()->with('success', 'Nilai dihapus');
     }
 }
